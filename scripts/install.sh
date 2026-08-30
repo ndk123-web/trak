@@ -59,24 +59,28 @@ curl -fsSL "${DOWNLOAD_URL}" -o "${EXE_PATH}"
 chmod +x "${EXE_PATH}"
 echo "      Downloaded successfully."
 
-# 4. PATH instructions
+# 4. PATH configuration
 echo ""
 echo "[4/4] Configuring PATH..."
 
-SHELL_RC=""
-if [ -n "$ZSH_VERSION" ] || [ "$SHELL" = "/bin/zsh" ]; then
-  SHELL_RC="${HOME}/.zshrc"
-elif [ -n "$BASH_VERSION" ] || [ "$SHELL" = "/bin/bash" ]; then
-  SHELL_RC="${HOME}/.bashrc"
-fi
+# Create symlink in ~/.local/bin if present
+mkdir -p "${HOME}/.local/bin" 2>/dev/null || true
+ln -sf "${EXE_PATH}" "${HOME}/.local/bin/trak" 2>/dev/null || true
 
-if [ -n "$SHELL_RC" ] && [ -f "$SHELL_RC" ]; then
-  if ! grep -q 'export PATH="$HOME/.trak/bin:$PATH"' "$SHELL_RC"; then
-    echo 'export PATH="$HOME/.trak/bin:$PATH"' >> "$SHELL_RC"
-    echo "      Added to ${SHELL_RC}"
-  else
-    echo "      Already present in ${SHELL_RC}"
+# Add to profile files
+CONFIGURED=0
+for rc in "${HOME}/.zshrc" "${HOME}/.bashrc" "${HOME}/.bash_profile" "${HOME}/.profile"; do
+  if [ -f "$rc" ]; then
+    if ! grep -q '.trak/bin' "$rc"; then
+      echo 'export PATH="$HOME/.trak/bin:$PATH"' >> "$rc"
+      echo "      Configured $(basename "$rc")"
+      CONFIGURED=1
+    fi
   fi
+done
+
+if [ "$CONFIGURED" -eq 0 ]; then
+  echo "      PATH already present in shell profile."
 fi
 
 echo ""
@@ -84,7 +88,8 @@ echo -e "\033[32mTRAK installed successfully!\033[0m"
 echo ""
 echo "Installed at: ${EXE_PATH}"
 echo ""
-echo "Run:"
+echo "Ready to use! Try running:"
 echo "  export PATH=\"\$HOME/.trak/bin:\$PATH\""
 echo "  trak list"
+echo "  trak init lang/go"
 echo ""

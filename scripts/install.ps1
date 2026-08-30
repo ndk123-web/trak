@@ -5,7 +5,14 @@ $ErrorActionPreference = "Stop"
 # ==============================
 
 $Version = "v1.0.0"
-$DownloadUrl = "https://github.com/ndk123-web/trak/releases/download/$Version/trak-windows-amd64.exe"
+
+# Architecture detection (amd64 vs arm64)
+$Arch = "amd64"
+if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64" -or $env:PROCESSOR_ARCHITEW6432 -eq "ARM64") {
+    $Arch = "arm64"
+}
+
+$DownloadUrl = "https://github.com/ndk123-web/trak/releases/download/$Version/trak-windows-$Arch.exe"
 
 # Install location:
 # C:\Users\<User>\trak\bin\trak.exe
@@ -26,7 +33,7 @@ if (-not [Environment]::Is64BitOperatingSystem) {
     throw "TRAK currently requires a 64-bit Windows system."
 }
 
-Write-Host "[1/4] Detected Windows x64" -ForegroundColor Green
+Write-Host "[1/4] Detected Windows ($Arch)" -ForegroundColor Green
 
 # --------------------------------
 # 2. Create install directory
@@ -100,6 +107,30 @@ else {
     Write-Host "      Already present in USER PATH." -ForegroundColor Green
 }
 
+# Update current active PowerShell session PATH immediately
+if ($env:PATH -notlike "*$BinDir*") {
+    $env:PATH = "$BinDir;$env:PATH"
+}
+
+# Optional: Ensure profile also has PATH configured
+try {
+    if ($PROFILE) {
+        $profileDir = Split-Path -Parent $PROFILE
+        if (-not (Test-Path $profileDir)) {
+            New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
+        }
+        $profileLine = "`$env:PATH = `"$BinDir;`$env:PATH`""
+        if (Test-Path $PROFILE) {
+            $content = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
+            if ($content -notlike "*$BinDir*") {
+                Add-Content -Path $PROFILE -Value "`n# TRAK CLI Path`n$profileLine"
+            }
+        }
+    }
+} catch {
+    # Non-fatal if profile update fails
+}
+
 # --------------------------------
 # Done
 # --------------------------------
@@ -110,10 +141,7 @@ Write-Host ""
 Write-Host "Installed at:"
 Write-Host "  $ExePath"
 Write-Host ""
-Write-Host "IMPORTANT:"
-Write-Host "Open a new PowerShell / terminal window so the updated PATH is loaded."
-Write-Host ""
-Write-Host "Then run:"
-Write-Host "  trak --help" -ForegroundColor Cyan
+Write-Host "Ready to use! Try running:"
 Write-Host "  trak list" -ForegroundColor Cyan
+Write-Host "  trak init lang/go" -ForegroundColor Cyan
 Write-Host ""
