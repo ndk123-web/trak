@@ -1,133 +1,159 @@
-# Trak CLI 🚀
+<p align="center">
+  <img src="public/trak.png" width="120" alt="Trak Logo" style="border-radius: 20px;" />
+</p>
 
-> **Trak** is a local CLI that resolves structured learning templates and materializes organized, hands-on learning workspaces directly on your filesystem.
+<h1 align="center">Trak</h1>
 
-[![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go)](https://golang.org)
-[![Registry](https://img.shields.io/badge/Registry-GitHub%20Raw-black?style=flat&logo=github)](https://github.com/ndk123-web/trak-registry)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<p align="center">
+  <strong>The Local-First Developer Learning Workspace Generator</strong>
+</p>
 
----
-
-## 💡 Why Trak?
-
-Learning a new programming language, framework, or DevOps tool often starts with messy folders, scattered notes, and fragmented tutorials.
-
-**Trak solves this by instantly materializing an end-to-end, structured workspace on your machine:**
-- 📂 **Step-by-step modular folders** (e.g., `01-basics`, `02-concurrency`, etc.)
-- 📝 **Pre-configured boilerplate & exercises** with runnable code and readme files
-- 🌐 **Dynamic Cloud Registry** that updates without requiring you to update the CLI binary
-- 🪶 **Zero runtime dependencies** — fast, lightweight single binary written in Go
+<p align="center">
+  <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go" alt="Go Version" /></a>
+  <a href="https://github.com/ndk123-web/trak-registry"><img src="https://img.shields.io/badge/Registry-19%20Tracks%20(350%2B%20Modules)-emerald?style=flat-square" alt="Registry" /></a>
+  <a href="https://github.com/ndk123-web/trak/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-blue?style=flat-square" alt="Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
+</p>
 
 ---
 
-## 📦 Installation
+## ⚡ Overview
 
-### From Source (Go 1.22+)
+**Trak** is a high-performance, local-first developer CLI tool that resolves structured curriculum blueprints from the remote registry and materializes comprehensive, multi-module learning environments directly on your filesystem.
+
+Stop copying fragmented tutorials. With a single command, Trak generates complete hands-on laboratories with working source code, build configs (`Dockerfile`, `docker-compose.yml`, `Cargo.toml`, `go.mod`), and structured cheatsheet READMEs.
+
+---
+
+## 🚀 Installation
+
+### Using Go (Recommended)
 ```bash
-go install github.com/ndk123-web/trak/cmd/cli@latest
+go install github.com/ndk123-web/trak@latest
 ```
 
-Or clone and build locally:
+### Build from Source
 ```bash
 git clone https://github.com/ndk123-web/trak.git
 cd trak
-go build -o trak ./cmd/cli
+go build -o trak main.go
 ```
 
 ---
 
-## 🚀 Usage
+## 💻 Quick Start
 
-### 1. Initialize a Learning Workspace
-Create a structured learning track in your current directory:
+### 1. Discover Learning Catalog
+Browse 19 comprehensive blueprints across 5 categories in a formatted ASCII tree:
 ```bash
-trak init lang/go
-```
-
-Or specify a custom destination path:
-```bash
-trak init lang/go --path=./my-learning-folder
-```
-
-### 2. Available Template Examples
-```bash
-# Programming Languages
-trak init lang/go
-
-# DevOps & Tools
-trak init tool/jenkins
-```
-
-### 3. List Available Templates
-```bash
+# View full catalog tree
 trak list
+
+# Or filter by category
+trak list lang
+trak list os
+trak list cloud
+trak list db
+trak list tool
+```
+
+### 2. Initialize a Workspace
+Materialize a complete hands-on workspace in your current directory:
+```bash
+# Default creates ./learn-go in current directory
+trak init lang/go
+
+# Or specify a custom destination path
+trak init db/postgres --path ./my-postgres-lab
+trak init tool/docker -p D:/devops/docker
+```
+
+### 3. Open and Start Learning
+```bash
+cd ./learn-go
+code .
 ```
 
 ---
 
-## 🏗️ How It Works (Architecture)
+## 📚 19 Production Blueprints (350+ Modules)
+
+| Category | Available Tracks | Modules | Key Topics Covered |
+| :--- | :--- | :--- | :--- |
+| **📦 `lang/`** | `go`, `rust`, `python`, `typescript`, `javascript`, `cpp`, `c`, `java` | 17–24 ea | Concurrency, Goroutines, Tokio Async, CPython GIL, Vtables, Strict Types, Zod |
+| **🐧 `os/`** | `linux`, `windows`, `macos` | 18–19 ea | Kernel Space, Systemd, FHS, NTFS DACLs, PowerShell Pipeline, Darwin XNU, APFS |
+| **☁️ `cloud/`** | `aws` | 18 | IAM Zero-Trust, VPC Networking, EC2/ALB, S3 Tiers, Aurora, Lambda, FinOps |
+| **🗄️ `db/`** | `postgres`, `redis`, `sql` | 18–19 ea | MVCC Internals, GIN/BRIN Indexes, Event Loop, Streams, Sentinel HA, 3NF Schemas |
+| **🛠️ `tool/`** | `docker`, `k8s`, `terraform`, `git`, `jenkins`, `ansible` | 18–19 ea | Namespaces, cgroups, CKA/CKAD Syllabus, HCL Modules, Reflog, Pipelines, Vault |
+
+---
+
+## 🏗️ Architecture
 
 ```text
-User CLI Command:  trak init lang/go
-                           │
-                           ▼
-                 ┌──────────────────┐
-                 │  Registry Client │ ──▶ Fetches registry.json from GitHub
-                 └─────────┬────────┘
-                           │
-                    lang/go exists?
-                           │
-                           ▼
-                 ┌──────────────────┐
-                 │ Template Fetcher │ ──▶ Fetches templates/lang/go.json
-                 └─────────┬────────┘
-                           │
-                           ▼
-                 ┌──────────────────┐
-                 │ Filesystem Engine│ ──▶ Recursively creates directories & files
-                 └─────────┬────────┘
-                           │
-                           ▼
-                 ┌──────────────────┐
-                 │ Workspace Stamped│ ──▶ Writes trak.json metadata locally
-                 └──────────────────┘
+User Command:  trak init lang/go
+                     │
+                     ▼
+          ┌─────────────────────┐
+          │   Registry Client   │ ──▶ Queries raw JSON blueprint from GitHub
+          └──────────┬──────────┘
+                     │
+              Template Valid?
+                     │
+                     ▼
+          ┌─────────────────────┐
+          │  Filesystem Engine  │ ──▶ Recursively creates directories & files
+          └──────────┬──────────┘
+                     │
+                     ▼
+          ┌─────────────────────┐
+          │  Metadata Stamping  │ ──▶ Writes immutable trak.json locally
+          └─────────────────────┘
 ```
 
 ---
 
-## 📁 Generated Workspace Structure
+## 📁 Stamped Workspace Structure
 
-When you run `trak init lang/go`, Trak generates:
+Every materialized workspace includes working code, module directories, and a `trak.json` manifest:
 
 ```text
-go-workspace/
+learn-go/
 ├── go.mod
 ├── README.md
-├── trak.json                  # Local workspace metadata
-├── 01-hello-world/
+├── trak.json                           # Immutable metadata manifest
+├── 00-setup-and-toolchain/
 │   ├── main.go
 │   └── README.md
-├── 02-variables-and-types/
+├── 10-goroutines-and-scheduler/
 │   ├── main.go
 │   └── README.md
-├── 03-control-flow/
-│   └── main.go
-├── 04-structs-and-methods/
-│   └── main.go
-├── 05-interfaces/
-│   └── main.go
-└── 06-concurrency/
-    └── main.go
+├── 11-channels-and-communication/
+│   ├── main.go
+│   └── README.md
+└── 19-interview-questions/
+    ├── main.go
+    └── README.md
 ```
 
 ---
 
-## 🤝 Template Ecosystem
+## 🛠️ CLI Commands Reference
 
-Templates are hosted openly at [trak-registry](https://github.com/ndk123-web/trak-registry). Anyone can submit new tracks, languages, and tools!
+- `trak` - Welcome banner, quick start, and subcommands summary
+- `trak list [category]` - Interactive tree view of all available templates
+- `trak init <category>/<template> [--path <dir>]` - Materializes the hands-on workspace
+- `trak version` - Displays version, build timestamp, Go runtime, and registry details
+- `trak --help` - Full command manual with copy-pasteable examples
 
 ---
 
-## 📜 License
+## 🤝 Contributing
 
-MIT License. See [LICENSE](LICENSE) for details.
+Templates are hosted openly at [trak-registry](https://github.com/ndk123-web/trak-registry). Anyone can submit new tracks, languages, and tools via Pull Request!
+
+---
+
+## 📄 License
+
+MIT License. Copyright (c) 2026 Navnath Kadam.
