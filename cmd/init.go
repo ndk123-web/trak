@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -62,14 +63,15 @@ var initCmd = cobra.Command{
 				ui.Error(fmt.Sprintf("Error determining home directory: %v", err.Error()))
 				return
 			}
-			finalPath = filepath.Join(homeDir, fmt.Sprintf("trak-learn-%s", toolName))
+
+			finalPath = strings.TrimSpace(filepath.Join(homeDir, fmt.Sprintf("trak-learn-%s", toolName)))
 		} else {
 			absPath, err := filepath.Abs(targetPath)
 			if err != nil {
 				ui.Error(fmt.Sprintf("Error resolving target path: %v", err.Error()))
 				return
 			}
-			finalPath = absPath
+			finalPath = strings.TrimSpace(absPath)
 		}
 
 		ui.Info(fmt.Sprintf("Target Workspace: %s", finalPath))
