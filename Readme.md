@@ -28,9 +28,13 @@ Stop copying fragmented tutorials. With a single command, Trak generates complet
 ## 🚀 Installation
 
 ### 🪟 Windows (PowerShell 1-Liner)
-Run the following in PowerShell as standard user:
 ```powershell
 irm https://raw.githubusercontent.com/ndk123-web/trak/main/scripts/install.ps1 | iex
+```
+
+### 💻 Windows (Command Prompt / CMD 1-Liner)
+```cmd
+powershell -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/ndk123-web/trak/main/scripts/install.ps1 | iex"
 ```
 
 ### 🐧 🍎 Linux & macOS (Bash 1-Liner)
