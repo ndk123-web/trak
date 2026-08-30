@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -10,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var path string
+var targetPath string
 
 var initCmd = cobra.Command{
 	Use:   "init [template]",
@@ -20,7 +22,7 @@ var initCmd = cobra.Command{
 		category, toolName, err := helper.ParseTemplateString(template)
 
 		if err != nil {
-			fmt.Printf("Error: %v\n", err.Error())
+			ui.Error(fmt.Sprintf("Error: %v\n", err.Error()))
 			return
 		}
 
@@ -41,15 +43,50 @@ var initCmd = cobra.Command{
 			return
 		}
 
-		ui.Success(fmt.Sprintf("Found Template: %s (v%s)\n", tmpl.Name, tmpl.Version))
+		ui.Success(fmt.Sprintf("Found Template: %s (v%s)", tmpl.Name, tmpl.Version))
+
 		// fetch the Template from the
 		// https://github.com/%s/%s/blob/%s/templates/%s/%s.json
+
+		ui.Success("Fetching Template")
+		s.Start()
+
+		_, err = helper.FetchTemplate(category, toolName, tmpl.Source)
+		s.Stop()
+
+		if err != nil {
+			ui.Error(fmt.Sprintf("Error: %v", err.Error()))
+			return
+		}
+
+		var finalPath string
+
+		// if targetPath empty
+		if targetPath == "" {
+			absPath, err := os.UserHomeDir()
+			if err != nil {
+				ui.Error(fmt.Sprintf("Error: %v", err.Error()))
+				return
+			}
+
+			finalPath = filepath.Join(absPath, fmt.Sprintf("trak-learn-%v", toolName))
+		} else {
+			absPath, err := filepath.Abs(targetPath)
+			if err != nil {
+				ui.Error(fmt.Sprintf("Error: %v", err.Error()))
+				return
+			}
+
+			finalPath = absPath
+		}
+
+		ui.Info(fmt.Sprintf("Using Directory: %v", finalPath))
 	},
 }
 
 // init runs before main() , speciality of golang
 func init() {
-	initCmd.Flags().StringVarP(&path, "path", "p", "", "Path where all resources will be going to put")
+	initCmd.Flags().StringVarP(&targetPath, "path", "p", "", "Path where all resources will be going to put")
 
 	rootCmd.AddCommand(&initCmd)
 }
