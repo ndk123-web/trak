@@ -24,7 +24,8 @@ func ParseTemplateString(template string) (string, string, error) {
 
 	// use first
 	if valid := pattern.MatchString(template); !valid {
-		return "", "", err
+		fmt.Print("Invalid template name\n")
+		return "", "", errors.New("Invalid Template Name")
 	}
 
 	splits := strings.Split(template, "/")
@@ -32,8 +33,8 @@ func ParseTemplateString(template string) (string, string, error) {
 	category = splits[0]
 	toolName = splits[1]
 
-	fmt.Printf("Category: %v\n", category)
-	fmt.Printf("ToolName: %v\n", toolName)
+	// fmt.Printf("Category: %v\n", category)
+	// fmt.Printf("ToolName: %v\n", toolName)
 
 	return category, toolName, nil
 }

@@ -22,16 +22,25 @@ var initCmd = cobra.Command{
 		}
 
 		fmt.Println("All is Right!!")
-		fmt.Println(category)
-		fmt.Println(toolName)
+		fmt.Println("Category: ", category)
+		fmt.Println("ToolName: ", toolName)
 
-		if path != "" {
-			fmt.Println("Path: ", path)
+		// fetch Registry
+		tmpl, err := helper.FetchRegistryAndCheck(category, toolName)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err.Error())
+			return
 		}
+
+		fmt.Printf("Found Template: %s (v%s)\n", tmpl.Name, tmpl.Version)
+		fmt.Printf("Source: %s\n", tmpl.Source)
+		fmt.Printf("Description: %s\n", tmpl.Description)
 	},
 }
 
+// init runs before main() , speciality of golang
 func init() {
 	initCmd.Flags().StringVarP(&path, "path", "p", "", "Path where all resources will be going to put")
+
 	rootCmd.AddCommand(&initCmd)
 }
