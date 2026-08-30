@@ -6,6 +6,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/ndk123-web/trak/internal/helper"
+	"github.com/ndk123-web/trak/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -27,20 +28,20 @@ var initCmd = cobra.Command{
 		// fmt.Println("ToolName: ", toolName)
 
 		s := spinner.New(spinner.CharSets[24], 100*time.Millisecond)
-		helper.Info("Finding Template")
+		ui.Info("Fetching Registry")
 		s.Start()
 
 		// fetch Registry
 		tmpl, err := helper.FetchRegistryAndCheck(category, toolName)
-		
+
 		s.Stop()
+
 		if err != nil {
-			helper.Error(fmt.Sprintf("Error: %v\n", err.Error()))
+			ui.Error(fmt.Sprintf("Error: %v\n", err.Error()))
 			return
 		}
 
-		helper.Success(fmt.Sprintf("Found Template: %s (v%s)\n", tmpl.Name, tmpl.Version))
-
+		ui.Success(fmt.Sprintf("Found Template: %s (v%s)\n", tmpl.Name, tmpl.Version))
 		// fetch the Template from the
 		// https://github.com/%s/%s/blob/%s/templates/%s/%s.json
 	},
