@@ -2,16 +2,39 @@ package cmd
 
 import (
 	"fmt"
+	"runtime"
 
+	"github.com/ndk123-web/trak/internal/config"
 	"github.com/ndk123-web/trak/internal/ui"
 	"github.com/spf13/cobra"
 )
 
+const (
+	Version = "1.0.0"
+	Build   = "2026.08"
+)
+
 var versionCmd = cobra.Command{
 	Use:   "version",
-	Short: "To see the Version Of Tool In Your Machine",
+	Short: "Display the current installed version of Trak",
+	Long: `Display detailed version and build information for the Trak CLI,
+including Go runtime version, host operating system architecture, and registry configuration.`,
+	Example: `  trak version`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("%s %s%s\n", ui.Green, "trak v1.0.0", ui.Reset)
+		fmt.Println()
+		fmt.Printf("  %s%s⚡ Trak CLI%s %s(v%s)%s\n", ui.Bold, ui.Cyan, ui.Reset, ui.Green, Version, ui.Reset)
+		fmt.Printf("  %s──────────────────────────────────────────────%s\n", ui.Gray, ui.Reset)
+		fmt.Printf("  %s• Version     :%s  v%s\n", ui.Gray, ui.Reset, Version)
+		fmt.Printf("  %s• Build       :%s  %s\n", ui.Gray, ui.Reset, Build)
+		fmt.Printf("  %s• Go Runtime  :%s  %s\n", ui.Gray, ui.Reset, runtime.Version())
+		fmt.Printf("  %s• Platform    :%s  %s/%s\n", ui.Gray, ui.Reset, runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("  %s• Registry    :%s  github.com/%s/%s (%s)\n",
+			ui.Gray, ui.Reset,
+			config.TrakConfig.GithubUsername,
+			config.TrakConfig.RegistryName,
+			config.TrakConfig.RepositoryBranch,
+		)
+		fmt.Println()
 	},
 }
 
