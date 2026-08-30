@@ -45,22 +45,17 @@ func FetchRegistry() (*models.RegistryModel, error) {
 	return &registry, nil
 }
 
-// SearchRegistry renders a beautiful ASCII tree visualization of available templates
-func SearchRegistry(category string, all bool) error {
-	registry, err := FetchRegistry()
-	if err != nil {
-		return err
-	}
-
+// RenderRegistry renders the registry catalog after it has been fetched
+func RenderRegistry(registry *models.RegistryModel, category string, all bool) error {
 	category = strings.TrimSpace(strings.ToLower(category))
 
 	// If no category specified or "all" passed, render all categories
 	if all || category == "" || category == "all" {
-		renderAllCategoriesTree(registry)
+		renderAllCategories(registry)
 		return nil
 	}
 
-	// Render single category tree
+	// Render single category
 	cat, exists := registry.Categories[category]
 	if !exists {
 		var available []string
@@ -71,8 +66,17 @@ func SearchRegistry(category string, all bool) error {
 		return fmt.Errorf("category '%s' not found. Available categories: %s", category, strings.Join(available, ", "))
 	}
 
-	renderSingleCategoryTree(category, cat)
+	renderSingleCategory(category, cat)
 	return nil
+}
+
+// SearchRegistry fetches and renders the registry catalog
+func SearchRegistry(category string, all bool) error {
+	registry, err := FetchRegistry()
+	if err != nil {
+		return err
+	}
+	return RenderRegistry(registry, category, all)
 }
 
 // getCategoryIcon returns a fitting emoji for category
@@ -93,9 +97,15 @@ func getCategoryIcon(catKey string) string {
 	}
 }
 
-// renderAllCategoriesTree renders full catalog tree
-func renderAllCategoriesTree(registry *models.RegistryModel) {
-	fmt.Printf("\n%s%s🌳 Trak Learning Catalog%s %s(v%s)%s\n\n", ui.Bold, ui.Green, ui.Reset, ui.Gray, registry.SchemaVersion, ui.Reset)
+// renderAllCategories renders the master catalog in clean, spaced, categorized blocks
+func renderAllCategories(registry *models.RegistryModel) {
+	totalTracks := 0
+	for _, cat := range registry.Categories {
+		totalTracks += len(cat.Templates)
+	}
+
+	fmt.Printf("\n%s%sTrak Learning Catalog%s %s(v%s • %d Blueprints)%s\n",
+		ui.Bold, ui.White, ui.Reset, ui.Gray, registry.SchemaVersion, totalTracks, ui.Reset)
 
 	// Preferred category display order
 	preferredOrder := []string{"lang", "os", "cloud", "db", "tool"}
@@ -114,19 +124,16 @@ func renderAllCategoriesTree(registry *models.RegistryModel) {
 		}
 	}
 
-	for i, catKey := range categoryKeys {
+	for _, catKey := range categoryKeys {
 		cat := registry.Categories[catKey]
-		isLastCat := i == len(categoryKeys)-1
-
-		catBranch := "├──"
-		subPrefix := "│  "
-		if isLastCat {
-			catBranch = "└──"
-			subPrefix = "   "
-		}
-
 		icon := getCategoryIcon(catKey)
-		fmt.Printf("%s %s %s%s%s %s(%s)%s\n", catBranch, icon, ui.Bold, cat.Title, ui.Reset, ui.Cyan, catKey, ui.Reset)
+
+		// Category Header Badge
+		fmt.Printf("\n%s%s%s %s%s %s(%s/)%s\n",
+			ui.Bold, icon, ui.Reset,
+			ui.Bold, strings.ToUpper(cat.Title),
+			ui.Cyan, catKey, ui.Reset,
+		)
 
 		// Sort templates alphabetically
 		tplKeys := make([]string, 0, len(cat.Templates))
@@ -135,6 +142,7 @@ func renderAllCategoriesTree(registry *models.RegistryModel) {
 		}
 		sort.Strings(tplKeys)
 
+		// Calculate max key width for clean column alignment
 		maxKeyLen := 0
 		for _, tKey := range tplKeys {
 			if len(tKey) > maxKeyLen {
@@ -142,40 +150,36 @@ func renderAllCategoriesTree(registry *models.RegistryModel) {
 			}
 		}
 
-		for j, tKey := range tplKeys {
+		// Print templates with column alignment and clean spacing
+		for _, tKey := range tplKeys {
 			tpl := cat.Templates[tKey]
-			isLastTpl := j == len(tplKeys)-1
+			padding := strings.Repeat(" ", maxKeyLen-len(tKey)+3)
 
-			tplBranch := "├──"
-			if isLastTpl {
-				tplBranch = "└──"
-			}
-
-			padding := strings.Repeat(" ", maxKeyLen-len(tKey)+2)
-			fmt.Printf("%s %s %s%s%s%s%s%s%s\n",
-				subPrefix,
-				tplBranch,
+			fmt.Printf("   %s%s%s%s%s%s%s\n",
 				ui.Cyan, tKey, ui.Reset,
 				padding,
 				ui.Gray, tpl.Description, ui.Reset,
 			)
 		}
-
-		if !isLastCat {
-			fmt.Println("│")
-		}
 	}
 
-	fmt.Printf("\n%s💡 Tip:%s Initialize any workspace with: %s%strak init <category>/<template> --path ./my-workspace%s\n\n",
+	// Clean Quickstart Tip Footer
+	fmt.Printf("\n%s──────────────────────────────────────────────────────────────────%s\n", ui.Gray, ui.Reset)
+	fmt.Printf("%s💡 Initialize any workspace:%s %s%strak init <category>/<template>%s\n",
 		ui.Yellow, ui.Reset, ui.Green, ui.Bold, ui.Reset)
+	fmt.Printf("   %sexample:%s trak init lang/go --path ./learn-go\n\n", ui.Gray, ui.Reset)
 }
 
-// renderSingleCategoryTree renders a single category in focused view
-func renderSingleCategoryTree(catKey string, cat models.Category) {
+// renderSingleCategory renders a focused view of a single category
+func renderSingleCategory(catKey string, cat models.Category) {
 	icon := getCategoryIcon(catKey)
-	fmt.Printf("\n%s %s%s%s %s(%s)%s\n", icon, ui.Bold, cat.Title, ui.Reset, ui.Cyan, catKey, ui.Reset)
+	fmt.Printf("\n%s%s%s %s%s %s(%s/)%s\n",
+		ui.Bold, icon, ui.Reset,
+		ui.Bold, strings.ToUpper(cat.Title),
+		ui.Cyan, catKey, ui.Reset,
+	)
 	if cat.Description != "" {
-		fmt.Printf("%s%s%s\n", ui.Gray, cat.Description, ui.Reset)
+		fmt.Printf("   %s%s%s\n", ui.Gray, cat.Description, ui.Reset)
 	}
 	fmt.Println()
 
@@ -192,24 +196,16 @@ func renderSingleCategoryTree(catKey string, cat models.Category) {
 		}
 	}
 
-	for j, tKey := range tplKeys {
+	for _, tKey := range tplKeys {
 		tpl := cat.Templates[tKey]
-		isLastTpl := j == len(tplKeys)-1
-
-		tplBranch := "├──"
-		if isLastTpl {
-			tplBranch = "└──"
-		}
-
-		padding := strings.Repeat(" ", maxKeyLen-len(tKey)+2)
-		fmt.Printf("%s %s%s%s%s%s%s%s\n",
-			tplBranch,
+		padding := strings.Repeat(" ", maxKeyLen-len(tKey)+3)
+		fmt.Printf("   %s%s%s%s%s%s%s\n",
 			ui.Cyan, tKey, ui.Reset,
 			padding,
 			ui.Gray, tpl.Description, ui.Reset,
 		)
 	}
 
-	fmt.Printf("\n%s💡 Tip:%s Run: %s%strak init %s/<template> --path ./learn-%s%s\n\n",
+	fmt.Printf("\n%s💡 Run:%s %s%strak init %s/<template> --path ./learn-%s%s\n\n",
 		ui.Yellow, ui.Reset, ui.Green, ui.Bold, catKey, catKey, ui.Reset)
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -16,13 +17,13 @@ var (
 
 var listCmd = cobra.Command{
 	Use:   "list [category]",
-	Short: "List all available learning templates in a tree structure",
+	Short: "List all available learning templates in a structured catalog",
 	Long: `Explore the complete Trak catalog of 20+ production-grade learning blueprints
 organized across Programming Languages, Operating Systems, Cloud Providers, Databases,
 and DevOps Tools.
 
 You can inspect the entire catalog or drill down into a specific category.`,
-	Example: `  # Browse full catalog tree:
+	Example: `  # Browse full catalog:
   trak list
   trak list --all
 
@@ -51,10 +52,16 @@ You can inspect the entire catalog or drill down into a specific category.`,
 		s.Color("cyan")
 		s.Start()
 
-		err := helper.SearchRegistry(targetCategory, fetchAllFlag)
+		registry, err := helper.FetchRegistry()
 		s.Stop()
+		fmt.Print("\r\033[K") // Clear the spinner line completely
 
 		if err != nil {
+			ui.Error(err.Error())
+			return
+		}
+
+		if err := helper.RenderRegistry(registry, targetCategory, fetchAllFlag); err != nil {
 			ui.Error(err.Error())
 		}
 	},
