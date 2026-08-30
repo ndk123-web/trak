@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/ndk123-web/trak/internal/generator"
 	"github.com/ndk123-web/trak/internal/helper"
 	"github.com/ndk123-web/trak/internal/ui"
 	"github.com/spf13/cobra"
@@ -51,7 +52,7 @@ var initCmd = cobra.Command{
 		ui.Success("Fetching Template")
 		s.Start()
 
-		_, err = helper.FetchTemplate(category, toolName, tmpl.Source)
+		toolTemplate, err := helper.FetchTemplate(category, toolName, tmpl.Source)
 		s.Stop()
 
 		if err != nil {
@@ -77,10 +78,18 @@ var initCmd = cobra.Command{
 				return
 			}
 
-			finalPath = absPath
+			finalPath = filepath.Join(absPath, fmt.Sprintf("trak-learn-%v", toolName))
 		}
 
 		ui.Info(fmt.Sprintf("Using Directory: %v", finalPath))
+		s.Start()
+
+		_, err = generator.GenerateDirectories(toolTemplate, finalPath)
+		s.Stop()
+
+		if err != nil {
+			return
+		}
 	},
 }
 
