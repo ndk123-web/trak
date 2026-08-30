@@ -27,12 +27,23 @@ Stop copying fragmented tutorials. With a single command, Trak generates complet
 
 ## 🚀 Installation
 
-### Using Go (Recommended)
+### 🪟 Windows (PowerShell 1-Liner)
+Run the following in PowerShell as standard user:
+```powershell
+irm https://raw.githubusercontent.com/ndk123-web/trak/main/scripts/install.ps1 | iex
+```
+
+### 🐧 🍎 Linux & macOS (Bash 1-Liner)
+```bash
+curl -fsSL https://raw.githubusercontent.com/ndk123-web/trak/main/scripts/install.sh | bash
+```
+
+### 🐹 Using Go (Go 1.22+)
 ```bash
 go install github.com/ndk123-web/trak@latest
 ```
 
-### Build from Source
+### 🛠️ Build from Source
 ```bash
 git clone https://github.com/ndk123-web/trak.git
 cd trak
