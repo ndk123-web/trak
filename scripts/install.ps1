@@ -136,12 +136,16 @@ try {
 # --------------------------------
 
 Write-Host ""
-Write-Host "TRAK installed successfully!" -ForegroundColor Cyan
+Write-Host "TRAK installed successfully! 🚀" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Installed at:"
 Write-Host "  $ExePath"
 Write-Host ""
-Write-Host "Ready to use! Try running:"
+Write-Host "💡 TIP FOR DEVELOPERS:" -ForegroundColor Yellow
+Write-Host "If 'trak' is not recognized in other open tabs, please restart your terminal" -ForegroundColor Yellow
+Write-Host "or open a new PowerShell window so the updated PATH is loaded." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Quick Test Commands:"
 Write-Host "  trak list" -ForegroundColor Cyan
 Write-Host "  trak init lang/go" -ForegroundColor Cyan
 Write-Host ""

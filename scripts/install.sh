@@ -84,12 +84,16 @@ if [ "$CONFIGURED" -eq 0 ]; then
 fi
 
 echo ""
-echo -e "\033[32mTRAK installed successfully!\033[0m"
+echo -e "\033[32mTRAK installed successfully! 🚀\033[0m"
 echo ""
 echo "Installed at: ${EXE_PATH}"
 echo ""
-echo "Ready to use! Try running:"
+echo -e "\033[33m💡 TIP FOR DEVELOPERS:\033[0m"
+echo -e "\033[33mRestart your terminal or run:\033[0m"
 echo "  export PATH=\"\$HOME/.trak/bin:\$PATH\""
+echo "to reload your updated PATH immediately."
+echo ""
+echo "Quick Test Commands:"
 echo "  trak list"
 echo "  trak init lang/go"
 echo ""
