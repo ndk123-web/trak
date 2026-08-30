@@ -17,39 +17,33 @@ var targetPath string
 
 var initCmd = cobra.Command{
 	Use:   "init [template]",
-	Short: "Initialize the Specified Template into the Given Path, Default Current Directory / User Directory",
+	Short: "Initialize the specified learning template into the workspace",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		template := args[0]
 		category, toolName, err := helper.ParseTemplateString(template)
-
 		if err != nil {
-			ui.Error(fmt.Sprintf("Error: %v\n", err.Error()))
+			ui.Error(fmt.Sprintf("Error: %v", err.Error()))
 			return
 		}
 
-		// fmt.Println("Category: ", category)
-		// fmt.Println("ToolName: ", toolName)
-
 		s := spinner.New(spinner.CharSets[24], 100*time.Millisecond)
-		ui.Info("Fetching Registry")
+		ui.Info("Fetching Registry...")
 		s.Start()
 
-		// fetch Registry
+		// 1. Fetch Registry
 		tmpl, err := helper.FetchRegistryAndCheck(category, toolName)
-
 		s.Stop()
 
 		if err != nil {
-			ui.Error(fmt.Sprintf("Error: %v\n", err.Error()))
+			ui.Error(fmt.Sprintf("Error: %v", err.Error()))
 			return
 		}
 
 		ui.Success(fmt.Sprintf("Found Template: %s (v%s)", tmpl.Name, tmpl.Version))
 
-		// fetch the Template from the
-		// https://github.com/%s/%s/blob/%s/templates/%s/%s.json
-
-		ui.Success("Fetching Template")
+		// 2. Fetch Template Blueprint
+		ui.Info("Fetching Template Blueprint...")
 		s.Start()
 
 		toolTemplate, err := helper.FetchTemplate(category, toolName, tmpl.Source)
@@ -60,42 +54,41 @@ var initCmd = cobra.Command{
 			return
 		}
 
+		// 3. Resolve Target Workspace Directory
 		var finalPath string
-
-		// if targetPath empty
 		if targetPath == "" {
-			absPath, err := os.UserHomeDir()
+			homeDir, err := os.UserHomeDir()
 			if err != nil {
-				ui.Error(fmt.Sprintf("Error: %v", err.Error()))
+				ui.Error(fmt.Sprintf("Error determining home directory: %v", err.Error()))
 				return
 			}
-
-			finalPath = filepath.Join(absPath, fmt.Sprintf("trak-learn-%v", toolName))
+			finalPath = filepath.Join(homeDir, fmt.Sprintf("trak-learn-%s", toolName))
 		} else {
 			absPath, err := filepath.Abs(targetPath)
 			if err != nil {
-				ui.Error(fmt.Sprintf("Error: %v", err.Error()))
+				ui.Error(fmt.Sprintf("Error resolving target path: %v", err.Error()))
 				return
 			}
-
-			finalPath = filepath.Join(absPath, fmt.Sprintf("trak-learn-%v", toolName))
+			finalPath = absPath
 		}
 
-		ui.Info(fmt.Sprintf("Using Directory: %v", finalPath))
-		s.Start()
+		ui.Info(fmt.Sprintf("Target Workspace: %s", finalPath))
 
+		// 4. Generate Files & Folders
+		s.Start()
 		_, err = generator.GenerateDirectories(toolTemplate, finalPath)
 		s.Stop()
 
 		if err != nil {
 			return
 		}
+
+		fmt.Println()
+		ui.Success(fmt.Sprintf("Successfully initialized %s workspace at %s! 🎉", tmpl.Name, finalPath))
 	},
 }
 
-// init runs before main() , speciality of golang
 func init() {
-	initCmd.Flags().StringVarP(&targetPath, "path", "p", "", "Path where all resources will be going to put")
-
+	initCmd.Flags().StringVarP(&targetPath, "path", "p", "", "Destination directory path for the learning workspace")
 	rootCmd.AddCommand(&initCmd)
 }
