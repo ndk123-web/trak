@@ -4,11 +4,10 @@
 # ==============================================================================
 
 param (
-    [string]$Version = "1.0.0",
+    [string]$Version = "1.1.0",
     [string]$OutputDir = "dist"
 )
 
-# Stop on errors
 $ErrorActionPreference = "Stop"
 
 $rootPath = Split-Path -Parent $PSScriptRoot
@@ -16,7 +15,7 @@ Set-Location $rootPath
 
 Write-Host ""
 Write-Host "==================================================================" -ForegroundColor Cyan
-Write-Host "  🚀 Trak CLI - Multi-Platform Distribution Builder v$Version" -ForegroundColor Cyan
+Write-Host "  Trak CLI - Multi-Platform Distribution Builder v$Version" -ForegroundColor Cyan
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -26,7 +25,7 @@ $releasePath = Join-Path $distPath "v$Version"
 $binariesPath = Join-Path $releasePath "binaries"
 
 if (Test-Path $releasePath) {
-    Write-Host "🧹 Cleaning existing release directory: $releasePath" -ForegroundColor Yellow
+    Write-Host "[CLEAN] Removing existing directory: $releasePath" -ForegroundColor Yellow
     Remove-Item -Recurse -Force $releasePath
 }
 
@@ -64,7 +63,7 @@ foreach ($target in $targets) {
     $binaryName = "trak-${os}-${arch}${ext}"
     $outputFilePath = Join-Path $binariesPath $binaryName
 
-    Write-Host "🔨 Compiling for $label [$os/$arch]..." -ForegroundColor White -NoNewline
+    Write-Host "[BUILD] Compiling for $label [$os/$arch]... " -ForegroundColor White -NoNewline
 
     $env:GOOS = $os
     $env:GOARCH = $arch
@@ -74,20 +73,19 @@ foreach ($target in $targets) {
     go build -ldflags $ldflags -o $outputFilePath .
 
     if ($LASTEXITCODE -ne 0) {
-        Write-Host " ❌ FAILED" -ForegroundColor Red
+        Write-Host "FAILED" -ForegroundColor Red
         Exit 1
     }
 
     $fileInfo = Get-Item $outputFilePath
     $sizeMB = [math]::Round($fileInfo.Length / 1MB, 2)
-    Write-Host " ✔ OK ($sizeMB MB)" -ForegroundColor Green
+    Write-Host "OK ($sizeMB MB)" -ForegroundColor Green
 
     # Package into archive (.zip for windows, .tar.gz for unix)
     $archiveName = "trak_${Version}_${os}_${arch}"
     
     if ($os -eq "windows") {
         $zipPath = Join-Path $releasePath "$archiveName.zip"
-        # Temporarily copy to clean named binary for zip archive
         $tempDir = Join-Path $env:TEMP ([System.Guid]::NewGuid().ToString())
         New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
         Copy-Item $outputFilePath (Join-Path $tempDir "trak.exe")
@@ -96,14 +94,12 @@ foreach ($target in $targets) {
         $builtFiles += $zipPath
     } else {
         $tarPath = Join-Path $releasePath "$archiveName.tar.gz"
-        # Create tar.gz using native tar if available or fallback
         $tempDir = Join-Path $env:TEMP ([System.Guid]::NewGuid().ToString())
         New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
         Copy-Item $outputFilePath (Join-Path $tempDir "trak")
         
         tar -czf $tarPath -C $tempDir trak 2>$null
         if (-not (Test-Path $tarPath)) {
-            # Fallback to standard zip if tar is unavailable on older powershell
             $zipPath = Join-Path $releasePath "$archiveName.zip"
             Compress-Archive -Path (Join-Path $tempDir "*") -DestinationPath $zipPath -Force
             $builtFiles += $zipPath
@@ -121,7 +117,7 @@ $env:CGO_ENABLED = ""
 
 # Generate SHA-256 Checksums
 Write-Host ""
-Write-Host "🔐 Generating SHA-256 Checksums (checksums.txt)..." -ForegroundColor Yellow
+Write-Host "[CHECKSUM] Generating SHA-256 Checksums (checksums.txt)..." -ForegroundColor Yellow
 $checksumFile = Join-Path $releasePath "checksums.txt"
 $checksumLines = @()
 
@@ -134,7 +130,7 @@ foreach ($file in $builtFiles) {
 }
 
 $checksumLines | Out-File -FilePath $checksumFile -Encoding utf8
-Write-Host "✔ Checksums created at: $checksumFile" -ForegroundColor Green
+Write-Host "[OK] Checksums created at: $checksumFile" -ForegroundColor Green
 
 $stopwatch.Stop()
 $elapsedSec = [math]::Round($stopwatch.Elapsed.TotalSeconds, 1)
@@ -142,17 +138,17 @@ $elapsedSec = [math]::Round($stopwatch.Elapsed.TotalSeconds, 1)
 # Summary Display
 Write-Host ""
 Write-Host "==================================================================" -ForegroundColor Cyan
-Write-Host "  ✨ Build Completed Successfully in $elapsedSec seconds! 🎉" -ForegroundColor Green
+Write-Host "  Build Completed Successfully in $elapsedSec seconds!" -ForegroundColor Green
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host "Output Directory: $releasePath" -ForegroundColor White
 Write-Host ""
 
 Get-ChildItem -Path $releasePath -Filter "trak_*" | ForEach-Object {
     $sizeKB = [math]::Round($_.Length / 1KB, 1)
-    Write-Host "  📦 $($_.Name) ($sizeKB KB)" -ForegroundColor Cyan
+    Write-Host "  - $($_.Name) ($sizeKB KB)" -ForegroundColor Cyan
 }
 
-Write-Host "  📄 checksums.txt" -ForegroundColor Yellow
+Write-Host "  - checksums.txt" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "🚀 Ready for GitHub Release v$Version!" -ForegroundColor Green
+Write-Host "Ready for GitHub Release v$Version!" -ForegroundColor Green
 Write-Host ""

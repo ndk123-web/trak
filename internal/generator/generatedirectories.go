@@ -49,8 +49,8 @@ func createNode(basePath string, node models.Node) (int, error) {
 	return count, nil
 }
 
-// GenerateDirectories materializes the template workspace and stamps trak.json, returning the total resource count
-func GenerateDirectories(toolTemplate *models.ToolTemplateModel, targetPath string) (int, error) {
+// GenerateDirectories materializes the template workspace and stamps trak.json with provenance metadata
+func GenerateDirectories(toolTemplate *models.ToolTemplateModel, targetPath string, parsed *models.ParsedTemplate) (int, error) {
 	totalResources := 1 // Root directory
 
 	// 1. Ensure target root directory exists
@@ -69,10 +69,26 @@ func GenerateDirectories(toolTemplate *models.ToolTemplateModel, targetPath stri
 		totalResources += count
 	}
 
-	// 3. Stamp trak.json metadata in the workspace root
+	// 3. Resolve metadata fields based on parsed blueprint origin
+	author := "Trak"
+	source := fmt.Sprintf("templates/%s.json", toolTemplate.Id)
+	id := toolTemplate.Id
+
+	if parsed != nil {
+		author = parsed.Author
+		source = parsed.SourcePath
+		id = parsed.Identifier
+	}
+
 	metadata := models.WorkspaceMetadata{
-		Template:        toolTemplate.Id,
+		Id:              id,
+		Name:            toolTemplate.Name,
+		Version:         toolTemplate.Version,
+		Template:        id,
 		TemplateVersion: toolTemplate.Version,
+		Author:          author,
+		Source:          source,
+		Repository:      "https://github.com/ndk123-web/trak-registry",
 		CreatedAt:       time.Now().UTC(),
 	}
 
