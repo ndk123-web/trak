@@ -58,19 +58,21 @@ directory in your current working directory.`,
 		s.Start()
 		tmpl, err := helper.FetchRegistryAndCheck(category, toolName)
 		s.Stop()
+		fmt.Print("\r\033[K")
 
 		if err != nil {
 			ui.Error(err.Error())
 			return
 		}
 
-		ui.Success(fmt.Sprintf("Found Template: %s%s%s (v%s)", ui.Bold, tmpl.Name, ui.Reset, tmpl.Version))
+		ui.FoundTemplate(tmpl.Name, tmpl.Version)
 
 		// 2. Fetch Template Blueprint
 		s.Suffix = fmt.Sprintf(" Downloading %s curriculum blueprint...", tmpl.Name)
 		s.Start()
 		toolTemplate, err := helper.FetchTemplate(category, toolName, tmpl.Source)
 		s.Stop()
+		fmt.Print("\r\033[K")
 
 		if err != nil {
 			ui.Error(fmt.Sprintf("Failed to download template: %v", err))
@@ -96,28 +98,17 @@ directory in your current working directory.`,
 			finalPath = absPath
 		}
 
-		ui.Info(fmt.Sprintf("Target Workspace: %s%s%s", ui.Cyan, finalPath, ui.Reset))
+		ui.TargetWorkspace(finalPath)
 
 		// 4. Materialize Files & Folders
-		s.Suffix = " Materializing directories and curriculum files on disk..."
-		s.Start()
 		createdCount, err := generator.GenerateDirectories(toolTemplate, finalPath)
-		s.Stop()
-
 		if err != nil {
 			ui.Error(fmt.Sprintf("Generation failed: %v", err))
 			return
 		}
 
-		fmt.Println()
-		ui.Success(fmt.Sprintf("Successfully initialized %s%s%s workspace with %d resources! 🎉",
-			ui.Bold, tmpl.Name, ui.Reset, createdCount))
-
-		fmt.Println()
-		fmt.Printf("  %sNext steps:%s\n", ui.Bold, ui.Reset)
-		fmt.Printf("    1. cd %s\n", finalPath)
-		fmt.Printf("    2. Open in your editor (%scode .%s)\n", ui.Cyan, ui.Reset)
-		fmt.Printf("    3. Read %sREADME.md%s and start Module 00!\n\n", ui.Cyan, ui.Reset)
+		ui.CompletedBanner(tmpl.Name, createdCount)
+		ui.NextSteps(finalPath)
 	},
 }
 
