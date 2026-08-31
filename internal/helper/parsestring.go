@@ -21,7 +21,7 @@ var nameRegex = regexp.MustCompile(`^[a-zA-Z0-9_\-\.]+$`)
 var userRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_\-]*$`)
 
 // ParseTemplateString parses both short official (lang/go), explicit official (trak/lang/go),
-// and community namespaced blueprints (vishal-12/lang/go).
+// and community namespaced blueprints (<username>/<category>/<tool>).
 func ParseTemplateString(input string) (*models.ParsedTemplate, error) {
 	input = strings.TrimSpace(input)
 
@@ -57,7 +57,7 @@ func ParseTemplateString(input string) (*models.ParsedTemplate, error) {
 		}, nil
 
 	case 3:
-		// Format: <author>/<category>/<tool> (e.g. trak/lang/go OR vishal-12/lang/go)
+		// Format: <author>/<category>/<tool> (e.g. trak/lang/go OR <username>/lang/go)
 		author := parts[0]
 		category := strings.ToLower(parts[1])
 		toolName := strings.ToLower(parts[2])
@@ -97,6 +97,6 @@ func ParseTemplateString(input string) (*models.ParsedTemplate, error) {
 		}, nil
 
 	default:
-		return nil, fmt.Errorf("invalid blueprint format '%s'.\nExpected:\n  • lang/go\n  • trak/lang/go\n  • <username>/<category>/<tool> (e.g. vishal-12/lang/go)", input)
+		return nil, fmt.Errorf("invalid blueprint format '%s'.\nExpected:\n  • lang/go\n  • trak/lang/go\n  • <username>/<category>/<tool>", input)
 	}
 }

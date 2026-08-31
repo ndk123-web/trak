@@ -25,7 +25,7 @@ on your local filesystem based on blueprints in Trak Registry.
 Supports both official and community creator blueprints:
   • Official Short:     lang/go, db/postgres, tool/docker, os/linux
   • Official Explicit:  trak/lang/go, trak/tool/docker
-  • Community Creator:  <username>/<category>/<tool> (e.g. vishal-12/lang/go)
+  • Community Creator:  <username>/<category>/<tool> (e.g. <username>/lang/go)
 
 If --path (-p) is not specified, Trak will automatically create a './learn-<toolName>'
 directory in your current working directory.`,
@@ -36,7 +36,7 @@ directory in your current working directory.`,
   trak init trak/lang/rust --path ./my-rust-track
 
   # Initialize community track by creator:
-  trak init vishal-12/lang/go -p ./advanced-go-microservices
+  trak init <username>/lang/go -p ./advanced-go-microservices
 
   # Initialize Operating Systems or DevOps tools:
   trak init os/linux
