@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/ndk123-web/trak/internal/models"
@@ -70,9 +71,23 @@ func GenerateDirectories(toolTemplate *models.ToolTemplateModel, targetPath stri
 	}
 
 	// 3. Stamp trak.json metadata in the workspace root
+	author := "Trak"
+	source := fmt.Sprintf("templates/%s.json", toolTemplate.Id)
+	idParts := strings.Split(toolTemplate.Id, "/")
+	if len(idParts) == 3 {
+		author = idParts[0]
+		source = fmt.Sprintf("users/%s.json", toolTemplate.Id)
+	}
+
 	metadata := models.WorkspaceMetadata{
+		Id:              toolTemplate.Id,
+		Name:            toolTemplate.Name,
+		Version:         toolTemplate.Version,
 		Template:        toolTemplate.Id,
 		TemplateVersion: toolTemplate.Version,
+		Author:          author,
+		Source:          source,
+		Repository:      "https://github.com/ndk123-web/trak-registry",
 		CreatedAt:       time.Now().UTC(),
 	}
 

@@ -9,6 +9,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/ndk123-web/trak/internal/generator"
 	"github.com/ndk123-web/trak/internal/helper"
+	"github.com/ndk123-web/trak/internal/models"
 	"github.com/ndk123-web/trak/internal/ui"
 	"github.com/spf13/cobra"
 )
@@ -16,26 +17,26 @@ import (
 var targetPath string
 
 var initCmd = cobra.Command{
-	Use:   "init <category>/<template>",
+	Use:   "init <blueprint>",
 	Short: "Initialize a hands-on learning workspace from the registry",
 	Long: `Download and materialize a comprehensive, multi-module learning workspace
-on your local filesystem based on the template registered in Trak Registry.
+on your local filesystem based on blueprints in Trak Registry.
 
-The template argument must follow the '<category>/<template>' format:
-  • lang/<language>   (e.g. lang/go, lang/rust, lang/typescript, lang/python, lang/cpp)
-  • os/<os-name>      (e.g. os/linux, os/windows, os/macos)
-  • cloud/<provider>  (e.g. cloud/aws)
-  • db/<database>     (e.g. db/postgres, db/redis, db/sql)
-  • tool/<tool-name>  (e.g. tool/docker, tool/k8s, tool/git, tool/terraform, tool/ansible)
+Supports both official and community creator blueprints:
+  • Official Short:     lang/go, db/postgres, tool/docker, os/linux
+  • Official Explicit:  trak/lang/go, trak/tool/docker
+  • Community Creator:  <username>/<category>/<tool> (e.g. vishal-12/lang/go)
 
 If --path (-p) is not specified, Trak will automatically create a './learn-<toolName>'
 directory in your current working directory.`,
-	Example: `  # Initialize Go workspace in ./learn-go (current directory):
+	Example: `  # Initialize official Go workspace in ./learn-go (current directory):
   trak init lang/go
 
-  # Initialize in a custom path:
-  trak init lang/rust --path ./my-rust-track
-  trak init db/postgres -p ./postgres-labs
+  # Initialize explicit official track:
+  trak init trak/lang/rust --path ./my-rust-track
+
+  # Initialize community track by creator:
+  trak init vishal-12/lang/go -p ./advanced-go-microservices
 
   # Initialize Operating Systems or DevOps tools:
   trak init os/linux
@@ -44,7 +45,7 @@ directory in your current working directory.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		templateArg := args[0]
-		category, toolName, err := helper.ParseTemplateString(templateArg)
+		parsed, err := helper.ParseTemplateString(templateArg)
 		if err != nil {
 			ui.Error(err.Error())
 			return
@@ -53,30 +54,52 @@ directory in your current working directory.`,
 		s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
 		s.Color("cyan")
 
-		// 1. Fetch Registry Catalog
-		s.Suffix = " Querying Trak registry catalog..."
-		s.Start()
-		tmpl, err := helper.FetchRegistryAndCheck(category, toolName)
-		s.Stop()
-		fmt.Print("\r\033[K")
+		var toolTemplate *models.ToolTemplateModel
+		displayName := parsed.ToolName
+		_ = displayName
 
-		if err != nil {
-			ui.Error(err.Error())
-			return
-		}
+		if parsed.IsOfficial {
+			// 1. Fetch Official Registry Catalog
+			s.Suffix = " Querying Trak official catalog..."
+			s.Start()
+			tmpl, err := helper.FetchRegistryAndCheck(parsed.Category, parsed.ToolName)
+			s.Stop()
+			fmt.Print("\r\033[K")
 
-		ui.FoundTemplate(tmpl.Name, tmpl.Version)
+			if err != nil {
+				ui.Error(err.Error())
+				return
+			}
 
-		// 2. Fetch Template Blueprint
-		s.Suffix = fmt.Sprintf(" Downloading %s curriculum blueprint...", tmpl.Name)
-		s.Start()
-		toolTemplate, err := helper.FetchTemplate(category, toolName, tmpl.Source)
-		s.Stop()
-		fmt.Print("\r\033[K")
+			displayName = tmpl.Name
+			ui.FoundTemplate(tmpl.Name, tmpl.Version)
 
-		if err != nil {
-			ui.Error(fmt.Sprintf("Failed to download template: %v", err))
-			return
+			// 2. Fetch Official Template Blueprint
+			s.Suffix = fmt.Sprintf(" Downloading %s official blueprint...", tmpl.Name)
+			s.Start()
+			toolTemplate, err = helper.FetchTemplate(parsed.SourcePath)
+			s.Stop()
+			fmt.Print("\r\033[K")
+
+			if err != nil {
+				ui.Error(fmt.Sprintf("Failed to download template: %v", err))
+				return
+			}
+		} else {
+			// Community Creator Track
+			s.Suffix = fmt.Sprintf(" Downloading community blueprint from @%s (%s)...", parsed.Author, parsed.SourcePath)
+			s.Start()
+			toolTemplate, err = helper.FetchTemplate(parsed.SourcePath)
+			s.Stop()
+			fmt.Print("\r\033[K")
+
+			if err != nil {
+				ui.Error(fmt.Sprintf("Failed to download community blueprint: %v", err))
+				return
+			}
+
+			displayName = fmt.Sprintf("%s (by @%s)", toolTemplate.Name, parsed.Author)
+			ui.FoundTemplate(displayName, toolTemplate.Version)
 		}
 
 		// 3. Resolve Target Workspace Directory
@@ -85,9 +108,9 @@ directory in your current working directory.`,
 			cwd, err := os.Getwd()
 			if err != nil {
 				homeDir, _ := os.UserHomeDir()
-				finalPath = filepath.Join(homeDir, fmt.Sprintf("learn-%s", toolName))
+				finalPath = filepath.Join(homeDir, fmt.Sprintf("learn-%s", parsed.ToolName))
 			} else {
-				finalPath = filepath.Join(cwd, fmt.Sprintf("learn-%s", toolName))
+				finalPath = filepath.Join(cwd, fmt.Sprintf("learn-%s", parsed.ToolName))
 			}
 		} else {
 			absPath, err := filepath.Abs(targetPath)
@@ -107,7 +130,7 @@ directory in your current working directory.`,
 			return
 		}
 
-		ui.CompletedBanner(tmpl.Name, createdCount)
+		ui.CompletedBanner(displayName, createdCount)
 		ui.NextSteps(finalPath)
 	},
 }

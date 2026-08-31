@@ -11,8 +11,9 @@ import (
 	"github.com/ndk123-web/trak/internal/models"
 )
 
-func FetchTemplate(category string, toolName string, source string) (*models.ToolTemplateModel, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// FetchTemplate downloads the AST JSON blueprint from the registry source path
+func FetchTemplate(source string) (*models.ToolTemplateModel, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	url := fmt.Sprintf("%v%v", config.TrakConfig.RawBaseUrl, source)
@@ -30,6 +31,10 @@ func FetchTemplate(category string, toolName string, source string) (*models.Too
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("blueprint not found in registry at '%s'. Check identifier spelling", source)
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("registry returned HTTP %d (%s)", resp.StatusCode, resp.Status)
 	}
@@ -37,7 +42,7 @@ func FetchTemplate(category string, toolName string, source string) (*models.Too
 	var toolTemplate *models.ToolTemplateModel
 
 	if err := json.NewDecoder(resp.Body).Decode(&toolTemplate); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse template AST schema: %w", err)
 	}
 
 	return toolTemplate, nil
