@@ -124,7 +124,7 @@ directory in your current working directory.`,
 		ui.TargetWorkspace(finalPath)
 
 		// 4. Materialize Files & Folders
-		createdCount, err := generator.GenerateDirectories(toolTemplate, finalPath)
+		createdCount, err := generator.GenerateDirectories(toolTemplate, finalPath, parsed)
 		if err != nil {
 			ui.Error(fmt.Sprintf("Generation failed: %v", err))
 			return
