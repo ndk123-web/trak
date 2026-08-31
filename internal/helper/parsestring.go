@@ -74,8 +74,8 @@ func ParseTemplateString(input string) (*models.ParsedTemplate, error) {
 			return nil, fmt.Errorf("invalid username '%s'. Must contain alphanumeric characters and hyphens", author)
 		}
 
-		// Check if author is official "trak"
-		if strings.EqualFold(author, "trak") {
+		// Check if author is official "trak" or alias "templates"
+		if strings.EqualFold(author, "trak") || strings.EqualFold(author, "templates") {
 			return &models.ParsedTemplate{
 				Author:     "Trak",
 				Category:   category,
