@@ -17,7 +17,7 @@ var ValidCategories = map[string]bool{
 	"tool":  true,
 }
 
-var nameRegex = regexp.MustCompile(`^[a-zA-Z0-9_\-\.]+$`)
+var nameRegex = regexp.MustCompile(`^[a-zA-Z0-9_\-\.@]+$`)
 var userRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_\-]*$`)
 
 // ParseTemplateString parses both short official (lang/go), explicit official (trak/lang/go),

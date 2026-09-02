@@ -68,6 +68,26 @@ func TestParseTemplateString(t *testing.T) {
 			sourcePath: "users/alex_dev/db/postgres.json",
 			identifier: "alex_dev/db/postgres",
 		},
+		{
+			input:      "Ndk18-wesd/db/postgres@v1.0.0",
+			wantErr:    false,
+			author:     "Ndk18-wesd",
+			category:   "db",
+			toolName:   "postgres@v1.0.0",
+			isOfficial: false,
+			sourcePath: "users/Ndk18-wesd/db/postgres@v1.0.0.json",
+			identifier: "Ndk18-wesd/db/postgres@v1.0.0",
+		},
+		{
+			input:      "lang/go@v1.2.0",
+			wantErr:    false,
+			author:     "Trak",
+			category:   "lang",
+			toolName:   "go@v1.2.0",
+			isOfficial: true,
+			sourcePath: "templates/lang/go@v1.2.0.json",
+			identifier: "lang/go@v1.2.0",
+		},
 		// 4. Invalid Cases
 		{
 			input:   "",
