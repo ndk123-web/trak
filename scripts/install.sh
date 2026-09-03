@@ -5,7 +5,7 @@ set -e
 # TRAK Linux & macOS Installer
 # ==============================
 
-VERSION="v1.1.0"
+VERSION="v1.2.0"
 INSTALL_DIR="${HOME}/.trak/bin"
 EXE_PATH="${INSTALL_DIR}/trak"
 

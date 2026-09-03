@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go" alt="Go Version" /></a>
   <a href="https://github.com/ndk123-web/trak-registry"><img src="https://img.shields.io/badge/Registry-19%20Tracks%20%2B%20Community-emerald?style=flat-square" alt="Registry" /></a>
-  <a href="https://github.com/ndk123-web/trak/releases/tag/v1.1.0"><img src="https://img.shields.io/badge/Release-v1.1.0-blue?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/ndk123-web/trak/releases/tag/v1.2.0"><img src="https://img.shields.io/badge/Release-v1.2.0-emerald?style=flat-square" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
 </p>
 
@@ -105,7 +105,7 @@ curl -fsSL https://raw.githubusercontent.com/ndk123-web/trak/main/scripts/instal
 
 ### 🐹 Go Install (Go 1.22+)
 ```bash
-go install github.com/ndk123-web/trak@v1.1.0
+go install github.com/ndk123-web/trak@v1.2.0
 ```
 
 ---
@@ -130,7 +130,7 @@ trak init tool/docker -p D:/devops/docker-lab
 ```
 
 ### 2. `trak list` — Interactive Catalog Explorer
-Displays all 19 curated tracks across 5 categories in a formatted ASCII tree:
+Displays all curated tracks across 5 categories in a formatted tree:
 
 ```bash
 # View complete master tree
@@ -144,17 +144,47 @@ trak list db       # Databases & Storage
 trak list tool     # DevOps & Tools
 ```
 
-### 3. `trak version` — Version & System Metadata
+### 3. `trak status` — Interactive Progress & State Dashboard
+Inspects the current workspace for `trak.json`, calculates module completion metrics, and renders a visual progress dashboard:
+
+```bash
+trak status
+```
+
+### 4. `trak done` — Mark Curriculum Module Complete
+Marks a module as completed in `trak.json`, updates your progress percentage, and guides you to the next exercise:
+
+```bash
+# Smart matching by number or prefix
+trak done 00
+trak done 1
+
+# By folder name or keyword
+trak done 01-runtime-and-escape-analysis
+trak complete 02
+trak mark 03
+```
+
+### 5. `trak undo` — Reset Module Back to Pending
+Reverts a completed module back to pending if you want to redo or revise exercises:
+
+```bash
+trak undo 01
+trak reset 01
+trak unmark 02
+```
+
+### 6. `trak version` — Version & System Metadata
 Prints detailed information about your installed binary:
 
 ```bash
 trak version
 ```
 ```text
-  ⚡ Trak CLI (vv1.1.0)
+  ⚡ Trak CLI (v1.2.0)
   ──────────────────────────────────────────────
-  • Version     :  v1.1.0
-  • Build       :  2026.08
+  • Version     :  v1.2.0
+  • Build       :  2026.09
   • Go Runtime  :  go1.22.5
   • Platform    :  windows/amd64
   • Registry    :  github.com/ndk123-web/trak-registry (main)
@@ -168,18 +198,18 @@ Trak includes a standalone cross-compilation pipeline script ([`scripts/build-di
 
 ```powershell
 # Run from repository root
-.\scripts\build-dist.ps1 -Version "1.1.0"
+.\scripts\build-dist.ps1 -Version "1.2.0"
 ```
 
-### Generated Release Artifacts (`dist/v1.1.0/`):
-- `trak_1.1.0_windows_amd64.zip` (Windows 64-bit)
-- `trak_1.1.0_windows_arm64.zip` (Windows ARM64)
-- `trak_1.1.0_windows_386.zip` (Windows 32-bit)
-- `trak_1.1.0_darwin_arm64.tar.gz` (macOS Apple Silicon M1/M2/M3/M4)
-- `trak_1.1.0_darwin_amd64.tar.gz` (macOS Intel)
-- `trak_1.1.0_linux_amd64.tar.gz` (Linux x86_64)
-- `trak_1.1.0_linux_arm64.tar.gz` (Linux ARM64 / aarch64)
-- `trak_1.1.0_linux_386.tar.gz` (Linux 32-bit)
+### Generated Release Artifacts (`dist/v1.2.0/`):
+- `trak_1.2.0_windows_amd64.zip` (Windows 64-bit)
+- `trak_1.2.0_windows_arm64.zip` (Windows ARM64)
+- `trak_1.2.0_windows_386.zip` (Windows 32-bit)
+- `trak_1.2.0_darwin_arm64.tar.gz` (macOS Apple Silicon M1/M2/M3/M4)
+- `trak_1.2.0_darwin_amd64.tar.gz` (macOS Intel)
+- `trak_1.2.0_linux_amd64.tar.gz` (Linux x86_64)
+- `trak_1.2.0_linux_arm64.tar.gz` (Linux ARM64 / aarch64)
+- `trak_1.2.0_linux_386.tar.gz` (Linux 32-bit)
 - `checksums.txt` (SHA-256 cryptographic hashes)
 
 ---
