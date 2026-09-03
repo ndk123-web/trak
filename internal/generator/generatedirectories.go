@@ -80,6 +80,14 @@ func GenerateDirectories(toolTemplate *models.ToolTemplateModel, targetPath stri
 		id = parsed.Identifier
 	}
 
+	var moduleBreakdown map[string]bool = make(map[string]bool)
+	
+	for _, node := range toolTemplate.Root.Children {
+		if node.Type == "directory" {
+			moduleBreakdown[node.Name] = false
+		}
+	}
+
 	metadata := models.WorkspaceMetadata{
 		Id:              id,
 		Name:            toolTemplate.Name,
@@ -90,6 +98,7 @@ func GenerateDirectories(toolTemplate *models.ToolTemplateModel, targetPath stri
 		Source:          source,
 		Repository:      "https://github.com/ndk123-web/trak-registry",
 		CreatedAt:       time.Now().UTC(),
+		ModuleBreakdown: moduleBreakdown,
 	}
 
 	metadataBytes, err := json.MarshalIndent(metadata, "", "  ")
