@@ -15,7 +15,7 @@ var TrakConfig = &Config{
 	RegistryName:     "trak-registry",
 	RepositoryBranch: "main",
 	GithubUsername:   "ndk123-web",
-	Version:          "v1.1.0",
+	Version:          "v1.2.0",
 }
 
 func UpdateBaseUrl() {
