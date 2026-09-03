@@ -49,7 +49,7 @@ You can inspect the entire catalog or drill down into a specific category.`,
 
 		s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
 		s.Suffix = " Fetching Trak registry catalog..."
-		s.Color("cyan")
+		s.Color("green")
 		s.Start()
 
 		registry, err := helper.FetchRegistry()

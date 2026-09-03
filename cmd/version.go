@@ -22,7 +22,7 @@ including Go runtime version, host operating system architecture, and registry c
 	Example: `  trak version`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println()
-		fmt.Printf("  %s%s⚡ Trak CLI%s %s(v%s)%s\n", ui.Bold, ui.Cyan, ui.Reset, ui.Green, Version, ui.Reset)
+		fmt.Printf("  %s%s⚡ Trak CLI%s %s(v%s)%s\n", ui.Bold, ui.Green, ui.Reset, ui.White, Version, ui.Reset)
 		fmt.Printf("  %s──────────────────────────────────────────────%s\n", ui.Gray, ui.Reset)
 		fmt.Printf("  %s• Version     :%s  v%s\n", ui.Gray, ui.Reset, Version)
 		fmt.Printf("  %s• Build       :%s  %s\n", ui.Gray, ui.Reset, Build)

@@ -34,13 +34,13 @@ and renders a visual progress dashboard.`,
 			fmt.Println()
 			fmt.Printf("  %s✖ Not a Trak workspace%s\n", ui.Red+ui.Bold, ui.Reset)
 			fmt.Printf("  %sCould not find 'trak.json' in: %s%s\n\n", ui.Gray, cwd, ui.Reset)
-			fmt.Printf("  %s💡 Tip:%s Navigate into your learning track folder (e.g. %scd ./learn-rust%s)\n", ui.White+ui.Bold, ui.Reset, ui.Cyan, ui.Reset)
+			fmt.Printf("  %s💡 Tip:%s Navigate into your learning track folder (e.g. %scd ./learn-rust%s)\n", ui.White+ui.Bold, ui.Reset, ui.Green, ui.Reset)
 			fmt.Printf("     or run %strak init <category>/<tool>%s to materialize one.\n\n", ui.Green, ui.Reset)
 			return
 		}
 
 		s := spinner.New(spinner.CharSets[14], 80*time.Millisecond)
-		s.Color("cyan")
+		s.Color("green")
 		s.Suffix = fmt.Sprintf(" %sAnalyzing workspace & curriculum progress...%s", ui.Gray, ui.Reset)
 		s.Start()
 
@@ -60,7 +60,7 @@ and renders a visual progress dashboard.`,
 		}
 
 		// Small delay for smooth CLI UX
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(700 * time.Millisecond)
 		s.Stop()
 
 		// Parse and format CreatedAt timestamp
@@ -99,11 +99,11 @@ and renders a visual progress dashboard.`,
 
 		// ── Render Professional Terminal Dashboard ──
 		fmt.Println()
-		fmt.Printf("  %s%s⚡ Trak Workspace Status%s\n", ui.Bold, ui.Cyan, ui.Reset)
+		fmt.Printf("  %s%s⚡ Trak Workspace Status%s\n", ui.Bold, ui.Green, ui.Reset)
 		fmt.Printf("  %s────────────────────────────────────────────────────────────%s\n", ui.Gray, ui.Reset)
 
 		fmt.Printf("  %s• Track Name   :%s  %s%s%s\n", ui.Gray, ui.Reset, ui.White+ui.Bold, trackTitle, ui.Reset)
-		fmt.Printf("  %s• Blueprint ID :%s  %s%s%s\n", ui.Gray, ui.Reset, ui.Cyan, statusModel.Id, ui.Reset)
+		fmt.Printf("  %s• Blueprint ID :%s  %s%s%s\n", ui.Gray, ui.Reset, ui.Green, statusModel.Id, ui.Reset)
 		fmt.Printf("  %s• Version      :%s  v%s\n", ui.Gray, ui.Reset, statusModel.Version)
 		if statusModel.Author != "" {
 			fmt.Printf("  %s• Author       :%s  %s\n", ui.Gray, ui.Reset, statusModel.Author)
@@ -151,7 +151,7 @@ and renders a visual progress dashboard.`,
 			}
 			if nextMod != "" {
 				fmt.Printf("  %s💡 Next Step:%s Work on %sModule %s%s and read its %sREADME.md%s\n",
-					ui.Cyan, ui.Reset, ui.Green+ui.Bold, nextMod, ui.Reset, ui.Yellow, ui.Reset)
+					ui.Green+ui.Bold, ui.Reset, ui.Green+ui.Bold, nextMod, ui.Reset, ui.White+ui.Bold, ui.Reset)
 			}
 		} else if totalModules > 0 && completedCount == totalModules {
 			fmt.Printf("  %s🎉 Congratulations! You have completed all modules in this track!%s\n", ui.Green+ui.Bold, ui.Reset)

@@ -10,18 +10,20 @@ import (
 var rootCmd = cobra.Command{
 	Use:   "trak",
 	Short: "Trak - Developer Learning Workspace Generator",
-	Long: `  _______ _____            _  __
+	Long: fmt.Sprintf(`%s%s  _______ _____            _  __
  |__   __|  __ \     /\   | |/ /
     | |  | |__) |   /  \  | ' / 
     | |  |  _  /   / /\ \ |  <  
     | |  | | \ \  / ____ \| . \ 
-    |_|  |_|  \_\/_/    \_\_|\_\
+    |_|  |_|  \_\/_/    \_\_|\_\%s
 
-Trak is a developer CLI tool that materializes structured, in-depth learning workspaces
-and production-grade curriculum directly onto your filesystem.
+%s⚡ Trak%s — Local-first developer learning workspace generator.
 
-Explore 20+ comprehensive curricula across Languages, Operating Systems, Cloud,
-Databases, and DevOps tools.`,
+Scaffolds structured, multi-module project folders directly onto your machine
+complete with hands-on runnable code, exercises, and architectural notes.
+
+Explore 20+ production-grade curricula across Languages, Operating Systems,
+Cloud Platforms, Databases, and DevOps Tools.`, ui.Bold, ui.Green, ui.Reset, ui.Bold+ui.Green, ui.Reset),
 	Example: `  # Discover all available curriculum tracks:
   trak list
 
@@ -37,22 +39,27 @@ Databases, and DevOps tools.`,
   trak init db/postgres
   trak init tool/docker --path ./my-docker-lab
 
+  # Check workspace progress:
+  trak status
+
   # Check CLI version:
   trak version`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("\n  %s%s⚡ Trak - Developer Learning Workspace Generator%s\n", ui.Bold, ui.Cyan, ui.Reset)
+		fmt.Printf("\n  %s%s⚡ Trak - Developer Learning Workspace Generator%s\n", ui.Bold, ui.Green, ui.Reset)
 		fmt.Printf("  %sLocal-first curriculum materialization CLI (v%s)%s\n\n", ui.Gray, Version, ui.Reset)
 
 		fmt.Printf("  %sAvailable Commands:%s\n", ui.Bold, ui.Reset)
-		fmt.Printf("    %slist%s       Explore all available tracks in an interactive tree\n", ui.Green, ui.Reset)
 		fmt.Printf("    %sinit%s       Initialize a hands-on learning workspace\n", ui.Green, ui.Reset)
+		fmt.Printf("    %slist%s       Explore all available tracks in an interactive tree\n", ui.Green, ui.Reset)
+		fmt.Printf("    %sstatus%s     Display workspace progress and module status\n", ui.Green, ui.Reset)
 		fmt.Printf("    %sversion%s    Display CLI version and build details\n\n", ui.Green, ui.Reset)
 
 		fmt.Printf("  %sQuick Start:%s\n", ui.Bold, ui.Reset)
-		fmt.Printf("    %strak list%s                   # Browse all tracks\n", ui.Cyan, ui.Reset)
-		fmt.Printf("    %strak init lang/go%s           # Generate Go learning workspace\n", ui.Cyan, ui.Reset)
-		fmt.Printf("    %strak init --help%s            # View init options & examples\n\n", ui.Cyan, ui.Reset)
+		fmt.Printf("    %strak list%s                   # Browse all tracks\n", ui.Green, ui.Reset)
+		fmt.Printf("    %strak init lang/go%s           # Generate Go learning workspace\n", ui.Green, ui.Reset)
+		fmt.Printf("    %strak status%s                 # Check current workspace progress\n", ui.Green, ui.Reset)
+		fmt.Printf("    %strak init --help%s            # View init options & examples\n\n", ui.Green, ui.Reset)
 	},
 }
 

@@ -52,7 +52,7 @@ directory in your current working directory.`,
 		}
 
 		s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
-		s.Color("cyan")
+		s.Color("green")
 
 		var toolTemplate *models.ToolTemplateModel
 		displayName := parsed.ToolName

@@ -132,7 +132,7 @@ func renderAllCategories(registry *models.RegistryModel) {
 		fmt.Printf("\n%s%s%s %s%s %s(%s/)%s\n",
 			ui.Bold, icon, ui.Reset,
 			ui.Bold, strings.ToUpper(cat.Title),
-			ui.Cyan, catKey, ui.Reset,
+			ui.Green, catKey, ui.Reset,
 		)
 
 		// Sort templates alphabetically
@@ -156,7 +156,7 @@ func renderAllCategories(registry *models.RegistryModel) {
 			padding := strings.Repeat(" ", maxKeyLen-len(tKey)+3)
 
 			fmt.Printf("   %s%s%s%s%s%s%s\n",
-				ui.Cyan, tKey, ui.Reset,
+				ui.Green, tKey, ui.Reset,
 				padding,
 				ui.Gray, tpl.Description, ui.Reset,
 			)
@@ -166,7 +166,7 @@ func renderAllCategories(registry *models.RegistryModel) {
 	// Clean Quickstart Tip Footer
 	fmt.Printf("\n%s──────────────────────────────────────────────────────────────────%s\n", ui.Gray, ui.Reset)
 	fmt.Printf("%s💡 Initialize any workspace:%s %s%strak init <category>/<template>%s\n",
-		ui.Yellow, ui.Reset, ui.Green, ui.Bold, ui.Reset)
+		ui.Green+ui.Bold, ui.Reset, ui.Green, ui.Bold, ui.Reset)
 	fmt.Printf("   %sexample:%s trak init lang/go --path ./learn-go\n\n", ui.Gray, ui.Reset)
 }
 
@@ -176,7 +176,7 @@ func renderSingleCategory(catKey string, cat models.Category) {
 	fmt.Printf("\n%s%s%s %s%s %s(%s/)%s\n",
 		ui.Bold, icon, ui.Reset,
 		ui.Bold, strings.ToUpper(cat.Title),
-		ui.Cyan, catKey, ui.Reset,
+		ui.Green, catKey, ui.Reset,
 	)
 	if cat.Description != "" {
 		fmt.Printf("   %s%s%s\n", ui.Gray, cat.Description, ui.Reset)
@@ -200,12 +200,12 @@ func renderSingleCategory(catKey string, cat models.Category) {
 		tpl := cat.Templates[tKey]
 		padding := strings.Repeat(" ", maxKeyLen-len(tKey)+3)
 		fmt.Printf("   %s%s%s%s%s%s%s\n",
-			ui.Cyan, tKey, ui.Reset,
+			ui.Green, tKey, ui.Reset,
 			padding,
 			ui.Gray, tpl.Description, ui.Reset,
 		)
 	}
 
 	fmt.Printf("\n%s💡 Run:%s %s%strak init %s/<template> --path ./learn-%s%s\n\n",
-		ui.Yellow, ui.Reset, ui.Green, ui.Bold, catKey, catKey, ui.Reset)
+		ui.Green+ui.Bold, ui.Reset, ui.Green, ui.Bold, catKey, catKey, ui.Reset)
 }

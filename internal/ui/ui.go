@@ -7,18 +7,21 @@ const (
 	Bold      = "\033[1m"
 	Dim       = "\033[2m"
 	Underline = "\033[4m"
-	Red       = "\033[31m"
-	Green     = "\033[32m"
-	Yellow    = "\033[33m"
-	Blue      = "\033[34m"
-	Magenta   = "\033[35m"
-	Cyan      = "\033[36m"
-	Gray      = "\033[90m"
-	LightGray = "\033[37m"
-	White     = "\033[97m"
+
+	// Trak Web Exact Signature Palette (24-bit TrueColor)
+	Emerald   = "\033[38;2;16;185;129m"  // #10b981 (Brand Emerald Green)
+	Green     = "\033[38;2;16;185;129m"  // #10b981
+	White     = "\033[38;2;245;244;239m" // #f5f4ef (Crisp Warm White)
+	LightGray = "\033[38;2;203;213;225m" // #cbd5e1 (Slate 300)
+	Gray      = "\033[38;2;148;163;184m" // #94a3b8 (Slate 400)
+	Red       = "\033[38;2;239;68;68m"   // #ef4444 (Clean Error Red)
+	Yellow    = "\033[38;2;245;158;11m"  // #f59e0b (Amber Accent)
+	Cyan      = "\033[38;2;16;185;129m"  // Mapped to Brand Emerald Green
+	Blue      = "\033[38;2;16;185;129m"  // Mapped to Brand Emerald Green
+	Magenta   = "\033[38;2;16;185;129m"
 )
 
-// Success prints a green checkmark with bold message
+// Success prints a green checkmark with message
 func Success(msg string) {
 	fmt.Printf("%s✔%s %s\n", Green, Reset, msg)
 }
@@ -28,21 +31,21 @@ func Error(msg string) {
 	fmt.Printf("%s✘%s %s%s%s\n", Red, Reset, Red, msg, Reset)
 }
 
-// Info prints a cyan arrow with info message
+// Info prints a brand green arrow with info message
 func Info(msg string) {
-	fmt.Printf("%s➜%s %s\n", Cyan, Reset, msg)
+	fmt.Printf("%s➜%s %s\n", Green, Reset, msg)
 }
 
-// FoundTemplate prints the brand-themed template discovery line matching Trak Green
+// FoundTemplate prints the brand-themed template discovery line
 func FoundTemplate(name, version string) {
 	fmt.Printf("%s✔%s %sFound Template:%s  %s%s%s %s(v%s)%s\n",
-		Green, Reset, Gray, Reset, Green+Bold, name, Reset, Cyan, version, Reset)
+		Green, Reset, Gray, Reset, White+Bold, name, Reset, Green, version, Reset)
 }
 
 // TargetWorkspace prints the resolved target workspace path
 func TargetWorkspace(path string) {
 	fmt.Printf("%s➜%s %sTarget Workspace:%s %s%s%s\n",
-		Cyan, Reset, Gray, Reset, White+Bold, path, Reset)
+		Green, Reset, Gray, Reset, White+Bold, path, Reset)
 }
 
 // CreatedFile prints a clean file creation line with muted gray label and crisp white path
@@ -57,22 +60,22 @@ func CreatedDir(path string) {
 		Green, Reset, Gray, Reset, LightGray, path, Reset)
 }
 
-// StampedMetadata prints the stamped trak.json metadata manifest line with cyan accent
+// StampedMetadata prints the stamped trak.json metadata manifest line with brand green accent
 func StampedMetadata(path string) {
 	fmt.Printf("  %s✔%s %sStamped Metadata: %s%s%s%s\n",
-		Cyan, Reset, Gray, Reset, Cyan+Bold, path, Reset)
+		Green, Reset, Gray, Reset, Green+Bold, path, Reset)
 }
 
 // CompletedBanner prints the final success message with highlighted resource count
 func CompletedBanner(name string, resourceCount int) {
 	fmt.Printf("\n%s✔%s %sSuccessfully initialized %s%s%s workspace with %s%d%s resources! 🎉\n",
-		Green, Reset, Green+Bold, White+Bold, name, Green+Bold, Yellow+Bold, resourceCount, Green+Bold+Reset)
+		Green, Reset, Green+Bold, White+Bold, name, Green+Bold, White+Bold, resourceCount, Green+Bold+Reset)
 }
 
 // NextSteps prints the formatted next steps guidance
 func NextSteps(path string) {
 	fmt.Printf("\n  %sNext steps:%s\n", White+Bold, Reset)
-	fmt.Printf("    1. %scd %s%s\n", Cyan, path, Reset)
+	fmt.Printf("    1. %scd %s%s\n", Green, path, Reset)
 	fmt.Printf("    2. %scode .%s %s(or open in your preferred editor)%s\n", Green, Reset, Gray, Reset)
-	fmt.Printf("    3. Read %sREADME.md%s and start Module 00!\n\n", Yellow, Reset)
+	fmt.Printf("    3. Read %sREADME.md%s and start Module 00!\n\n", Green+Bold, Reset)
 }
