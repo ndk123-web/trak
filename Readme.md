@@ -144,14 +144,26 @@ trak list db       # Databases & Storage
 trak list tool     # DevOps & Tools
 ```
 
-### 3. `trak status` — Interactive Progress & State Dashboard
+### 3. `trak next` — Discover Next Pending Exercise
+Inspects `trak.json`, resolves the next incomplete module sequentially, and gives you direct navigation links:
+
+```bash
+# View next module details and starter command
+trak next
+
+# Automatically launch module in VS Code
+trak next --open
+trak next -o
+```
+
+### 4. `trak status` — Interactive Progress & State Dashboard
 Inspects the current workspace for `trak.json`, calculates module completion metrics, and renders a visual progress dashboard:
 
 ```bash
 trak status
 ```
 
-### 4. `trak done` — Mark Curriculum Module Complete
+### 5. `trak done` — Mark Curriculum Module Complete
 Marks a module as completed in `trak.json`, updates your progress percentage, and guides you to the next exercise:
 
 ```bash
@@ -165,7 +177,7 @@ trak complete 02
 trak mark 03
 ```
 
-### 5. `trak undo` — Reset Module Back to Pending
+### 6. `trak undo` — Reset Module Back to Pending
 Reverts a completed module back to pending if you want to redo or revise exercises:
 
 ```bash
@@ -174,7 +186,7 @@ trak reset 01
 trak unmark 02
 ```
 
-### 6. `trak version` — Version & System Metadata
+### 7. `trak version` — Version & System Metadata
 Prints detailed information about your installed binary:
 
 ```bash
