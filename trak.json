@@ -10,7 +10,7 @@
   "name": "Go (Golang) Comprehensive Mastery Track",
   "module_breakdown": {
     "00-setup-and-prerequisites": true,
-    "01-runtime-and-escape-analysis": false,
+    "01-runtime-and-escape-analysis": true,
     "02-toolchain-and-workspaces": false,
     "03-variables-and-zero-values": false,
     "04-data-types-and-memory-headers": false,

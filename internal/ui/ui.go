@@ -1,6 +1,9 @@
 package ui
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const (
 	Reset     = "\033[0m"
@@ -78,4 +81,28 @@ func NextSteps(path string) {
 	fmt.Printf("    1. %scd %s%s\n", Green, path, Reset)
 	fmt.Printf("    2. %scode .%s %s(or open in your preferred editor)%s\n", Green, Reset, Gray, Reset)
 	fmt.Printf("    3. Read %sREADME.md%s and start Module 00!\n\n", Green+Bold, Reset)
+}
+
+// ProgressBar renders a clean block progress bar
+func ProgressBar(percent float64, width int) string {
+	if percent < 0 {
+		percent = 0
+	}
+	if percent > 100 {
+		percent = 100
+	}
+
+	filled := int((percent / 100.0) * float64(width))
+	if filled > width {
+		filled = width
+	}
+
+	var sb strings.Builder
+	for i := 0; i < filled; i++ {
+		sb.WriteString("█")
+	}
+	for i := filled; i < width; i++ {
+		sb.WriteString("░")
+	}
+	return sb.String()
 }
