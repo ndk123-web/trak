@@ -1,0 +1,18 @@
+{
+  "id": "lang/rust",
+  "name": "Rust Systems Mastery Track",
+  "template": "lang/rust",
+  "template_version": "1.2.0",
+  "created_at": "2026-09-02T13:31:01.3819837Z",
+  "author": "Trak",
+  "source": "templates/lang/rust.json",
+  "version": "1.2.0",
+  "repository": "https://github.com/ndk123-web/trak-registry",
+  "progress": 50.0,
+  "module_breakdown": {
+    "01": true,
+    "02": true,
+    "03": false,
+    "04": false
+  }
+}
