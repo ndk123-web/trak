@@ -7,6 +7,7 @@ type Config struct {
 	RegistryName     string
 	RepositoryBranch string
 	GithubUsername   string
+	Version          string
 }
 
 var TrakConfig = &Config{
@@ -14,6 +15,7 @@ var TrakConfig = &Config{
 	RegistryName:     "trak-registry",
 	RepositoryBranch: "main",
 	GithubUsername:   "ndk123-web",
+	Version:          "v1.1.0",
 }
 
 func UpdateBaseUrl() {
