@@ -2,13 +2,12 @@ package helper
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/ndk123-web/trak/internal/models"
+	"github.com/ndk123-web/trak/internal/shared"
 )
 
-// ValidCategories defines the recognized curriculum disciplines in Trak Registry
 var ValidCategories = map[string]bool{
 	"lang":  true,
 	"os":    true,
@@ -17,86 +16,109 @@ var ValidCategories = map[string]bool{
 	"tool":  true,
 }
 
-var nameRegex = regexp.MustCompile(`^[a-zA-Z0-9_\-\.]+$`)
-var userRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_\-]*$`)
+var nameRegex = shared.TrakRegexes.NameRegex
+var userRegex = shared.TrakRegexes.UserRegex
+var versionRegex = shared.TrakRegexes.VersionRegex
 
-// ParseTemplateString parses both short official (lang/go), explicit official (trak/lang/go),
-// and community namespaced blueprints (<username>/<category>/<tool>).
+func ExtractToolAndVersion(rawTool string) (toolName, version string, err error) {
+	if strings.Contains(rawTool, "@") {
+		parts := strings.SplitN(rawTool, "@", 2)
+		toolName = strings.ToLower(parts[0])
+		version = parts[1]
+
+		if !nameRegex.MatchString(toolName) {
+			return "", "", fmt.Errorf("invalid blueprint name '%s'", toolName)
+		}
+		if !versionRegex.MatchString(version) {
+			return "", "", fmt.Errorf("invalid version tag '%s' (e.g. v1.0.0)", version)
+		}
+		return toolName, version, nil
+	}
+
+	toolName = strings.ToLower(rawTool)
+	if !nameRegex.MatchString(toolName) {
+		return "", "", fmt.Errorf("invalid blueprint name '%s'", toolName)
+	}
+	return toolName, "", nil
+}
+
 func ParseTemplateString(input string) (*models.ParsedTemplate, error) {
 	input = strings.TrimSpace(input)
-
 	if input == "" {
 		return nil, fmt.Errorf("template identifier cannot be empty")
 	}
 
-	// Normalize any backslashes to forward slashes
 	input = strings.ReplaceAll(input, "\\", "/")
 	parts := strings.Split(input, "/")
 
 	switch len(parts) {
 	case 2:
-		// Format: <category>/<tool> (e.g. lang/go, db/postgres) -> Official Track
+		// Format: <category>/<tool>[@<version>]
 		category := strings.ToLower(parts[0])
-		toolName := strings.ToLower(parts[1])
-
 		if !ValidCategories[category] {
-			return nil, fmt.Errorf("invalid category '%s'. Must be one of: lang, os, cloud, db, tool", category)
+			return nil, fmt.Errorf("invalid category '%s'", category)
 		}
 
-		if !nameRegex.MatchString(toolName) {
-			return nil, fmt.Errorf("invalid blueprint name '%s'", toolName)
+		toolName, version, err := ExtractToolAndVersion(parts[1])
+		if err != nil {
+			return nil, err
+		}
+
+		sourceFile := toolName
+		if version != "" {
+			sourceFile = fmt.Sprintf("%s@%s", toolName, version)
 		}
 
 		return &models.ParsedTemplate{
-			Author:     "Trak",
-			Category:   category,
-			ToolName:   toolName,
+			Author:   "Trak",
+			Category: category,
+			ToolName: toolName,
+			// Version:    version,
 			IsOfficial: true,
-			SourcePath: fmt.Sprintf("templates/%s/%s.json", category, toolName),
-			Identifier: fmt.Sprintf("%s/%s", category, toolName),
+			SourcePath: fmt.Sprintf("templates/%s/%s.json", category, sourceFile),
+			Identifier: fmt.Sprintf("%s/%s", category, sourceFile),
 		}, nil
 
 	case 3:
-		// Format: <author>/<category>/<tool> (e.g. trak/lang/go OR <username>/lang/go)
+		// Format: <author>/<category>/<tool>[@<version>]
 		author := parts[0]
 		category := strings.ToLower(parts[1])
-		toolName := strings.ToLower(parts[2])
 
 		if !ValidCategories[category] {
-			return nil, fmt.Errorf("invalid category '%s'. Must be one of: lang, os, cloud, db, tool", category)
-		}
-
-		if !nameRegex.MatchString(toolName) {
-			return nil, fmt.Errorf("invalid blueprint name '%s'", toolName)
+			return nil, fmt.Errorf("invalid category '%s'", category)
 		}
 
 		if !userRegex.MatchString(author) {
-			return nil, fmt.Errorf("invalid username '%s'. Must contain alphanumeric characters and hyphens", author)
+			return nil, fmt.Errorf("invalid username '%s'", author)
 		}
 
-		// Check if author is official "trak" or alias "templates"
-		if strings.EqualFold(author, "trak") || strings.EqualFold(author, "templates") {
-			return &models.ParsedTemplate{
-				Author:     "Trak",
-				Category:   category,
-				ToolName:   toolName,
-				IsOfficial: true,
-				SourcePath: fmt.Sprintf("templates/%s/%s.json", category, toolName),
-				Identifier: fmt.Sprintf("%s/%s", category, toolName),
-			}, nil
+		toolName, version, err := ExtractToolAndVersion(parts[2])
+		if err != nil {
+			return nil, err
 		}
 
-		// Community blueprint under users/<author>/<category>/<tool>.json
+		sourceFile := toolName
+		if version != "" {
+			sourceFile = fmt.Sprintf("%s@%s", toolName, version)
+		}
+
+		isOfficial := strings.EqualFold(author, "trak") || strings.EqualFold(author, "templates")
+		sourcePath := fmt.Sprintf("users/%s/%s/%s.json", author, category, sourceFile)
+		if isOfficial {
+			sourcePath = fmt.Sprintf("templates/%s/%s.json", category, sourceFile)
+		}
+
 		return &models.ParsedTemplate{
-			Author:     author,
-			Category:   category,
-			ToolName:   toolName,
-			IsOfficial: false,
-			SourcePath: fmt.Sprintf("users/%s/%s/%s.json", author, category, toolName),
-			Identifier: fmt.Sprintf("%s/%s/%s", author, category, toolName),
+			Author:   author,
+			Category: category,
+			ToolName: toolName,
+			// Version:    version,
+			IsOfficial: isOfficial,
+			SourcePath: sourcePath,
+			Identifier: fmt.Sprintf("%s/%s/%s", author, category, sourceFile),
 		}, nil
 
 	default:
-		return nil, fmt.Errorf("invalid blueprint format '%s'.\nExpected:\n  • lang/go\n  • trak/lang/go\n  • <username>/<category>/<tool>", input)
+		return nil, fmt.Errorf("invalid blueprint format '%s'", input)
 	}
 }
