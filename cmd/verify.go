@@ -17,7 +17,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var verifyAll bool
+var (
+	verifyAll  bool
+	verifyList bool
+)
 
 var verifyCmd = cobra.Command{
 	Use:     "verify [module] [flags]",
@@ -30,7 +33,8 @@ and your curriculum progress is updated.
 You can specify:
   • No arguments:  Verifies the current pending module
   • Module query:  trak verify 00, trak verify 02, trak verify escape
-  • All modules:   trak verify --all (-a)`,
+  • All modules:   trak verify --all (-a)
+  • Supported:     trak verify --list (-l) or trak verify allowlists`,
 	Example: `  # Verify current pending exercise:
   trak verify
 
@@ -40,9 +44,18 @@ You can specify:
 
   # Verify all modules across the workspace:
   trak verify --all
-  trak verify -a`,
+  trak verify -a
+
+  # List supported language runtimes:
+  trak verify --list
+  trak verify allowlists`,
 	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		if verifyList {
+			renderSupportedRuntimes()
+			return
+		}
+
 		cwd, err := os.Getwd()
 		if err != nil {
 			ui.Error(fmt.Sprintf("Failed to get current directory: %v", err))
@@ -54,7 +67,7 @@ You can specify:
 			fmt.Println()
 			fmt.Printf("  %s✖ Not a Trak workspace%s\n", ui.Red+ui.Bold, ui.Reset)
 			fmt.Printf("  %sCould not find 'trak.json' in: %s%s\n\n", ui.Gray, cwd, ui.Reset)
-			fmt.Printf("  %s💡 Tip:%s Navigate into your learning track folder (e.g. %scd ./learn-go%s)\n", ui.White+ui.Bold, ui.Reset, ui.Green, ui.Reset)
+			fmt.Printf("  %sTip:%s Navigate into your learning track folder (e.g. %scd ./learn-go%s)\n", ui.White+ui.Bold, ui.Reset, ui.Green, ui.Reset)
 			fmt.Printf("     or run %strak init <category>/<tool>%s to materialize one.\n\n", ui.Green, ui.Reset)
 			return
 		}
@@ -185,6 +198,17 @@ You can specify:
 		s.Color("green")
 
 		for _, mod := range targets {
+			modDir := filepath.Join(cwd, mod)
+			if stat, err := os.Stat(modDir); os.IsNotExist(err) || !stat.IsDir() {
+				failCount++
+				fmt.Printf("  %s✖ FAIL%s  %s%s%s\n", ui.Red+ui.Bold, ui.Reset, ui.White+ui.Bold, mod, ui.Reset)
+				fmt.Printf("  %s┌── Directory Not Found ──────────────────────────────────────%s\n", ui.Red, ui.Reset)
+				fmt.Printf("  %s│ Module directory '%s' was not found in: %s\n", ui.Gray, mod, cwd)
+				fmt.Printf("  %s│ Make sure you run trak verify inside your initialized track folder.%s\n", ui.Gray, ui.Reset)
+				fmt.Printf("  %s└── Check workspace folder and try again ─────────────────────%s\n\n", ui.Red, ui.Reset)
+				continue
+			}
+
 			s.Suffix = fmt.Sprintf(" Testing %s...", mod)
 			s.Start()
 
@@ -266,5 +290,6 @@ You can specify:
 
 func init() {
 	verifyCmd.Flags().BoolVarP(&verifyAll, "all", "a", false, "Verify all modules across the workspace")
+	verifyCmd.Flags().BoolVarP(&verifyList, "list", "l", false, "List all supported verification runtimes and local toolchain status")
 	rootCmd.AddCommand(&verifyCmd)
 }

@@ -71,7 +71,7 @@ func StampedMetadata(path string) {
 
 // CompletedBanner prints the final success message with highlighted resource count
 func CompletedBanner(name string, resourceCount int) {
-	fmt.Printf("\n%s✔%s %sSuccessfully initialized %s%s%s workspace with %s%d%s resources! 🎉\n",
+	fmt.Printf("\n%s✔%s %sSuccessfully initialized %s%s%s workspace with %s%d%s resources!\n",
 		Green, Reset, Green+Bold, White+Bold, name, Green+Bold, White+Bold, resourceCount, Green+Bold+Reset)
 }
 

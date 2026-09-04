@@ -20,13 +20,6 @@ var Runtimes = map[string]LanguageRuntimeConfig{
 			return binary, []string{"test", "-v", "./" + filepath.ToSlash(moduleDir) + "/..."}
 		},
 	},
-	"golang": {
-		Name:        "Go",
-		Executables: []string{"go"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
-			return binary, []string{"test", "-v", "./" + filepath.ToSlash(moduleDir) + "/..."}
-		},
-	},
 	"python": {
 		Name:        "Python",
 		Executables: []string{"python", "python3"},
