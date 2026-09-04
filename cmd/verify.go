@@ -78,7 +78,7 @@ You can specify:
 		// Only "lang" tracks have automated compilers/test runners
 		if parsed.Category != "lang" {
 			fmt.Println()
-			fmt.Printf("  %sℹ Hands-On Laboratory Track%s\n", ui.Green+ui.Bold, ui.Reset)
+			fmt.Printf("  %s[i] Hands-On Laboratory Track%s\n", ui.Green+ui.Bold, ui.Reset)
 			fmt.Printf("  %sThis track (%s/%s) is an architectural laboratory without automated compiler tests.%s\n\n", ui.Gray, parsed.Category, parsed.ToolName, ui.Reset)
 			fmt.Printf("  %sUse %strak done <module>%s to record your completed exercises.\n\n", ui.Gray, ui.Green, ui.Reset)
 			return
@@ -88,9 +88,9 @@ You can specify:
 		resolvedBin, runtimeCfg, err := shared.ResolveToolchain(parsed.ToolName)
 		if err != nil {
 			fmt.Println()
-			fmt.Printf("  %s✖ Toolchain Not Found%s\n", ui.Red+ui.Bold, ui.Reset)
+			fmt.Printf("  %s* Toolchain Not Found%s\n", ui.Red+ui.Bold, ui.Reset)
 			fmt.Printf("  %s%s%s\n\n", ui.Gray, err.Error(), ui.Reset)
-			fmt.Printf("  %s💡 Tip:%s Install %s to run verification tests locally.\n\n", ui.White+ui.Bold, ui.Reset, parsed.ToolName)
+			fmt.Printf("  %sNote:%s Install %s to run verification tests locally.\n\n", ui.White+ui.Bold, ui.Reset, parsed.ToolName)
 			return
 		}
 
@@ -165,7 +165,7 @@ You can specify:
 
 			if len(targets) == 0 {
 				fmt.Println()
-				fmt.Printf("  %s🎉 All Modules Already Completed!%s\n", ui.Green+ui.Bold, ui.Reset)
+				fmt.Printf("  %sAll Modules Already Completed!%s\n", ui.Green+ui.Bold, ui.Reset)
 				fmt.Printf("  %sRun %strak verify --all%s to re-test the entire curriculum.\n\n", ui.Gray, ui.Green, ui.Reset)
 				return
 			}
@@ -173,7 +173,7 @@ You can specify:
 
 		// Execute Verification
 		fmt.Println()
-		fmt.Printf("  %s⚡ Trak Automated Test Runner (%s)%s\n", ui.Bold+ui.Green, runtimeCfg.Name, ui.Reset)
+		fmt.Printf("  %s>> Trak Automated Test Runner (%s)%s\n", ui.Bold+ui.Green, runtimeCfg.Name, ui.Reset)
 		fmt.Printf("  %sTrack: %s%s\n", ui.Gray, trakStruct.Name, ui.Reset)
 		fmt.Printf("  %s────────────────────────────────────────────────────────────%s\n", ui.Gray, ui.Reset)
 
