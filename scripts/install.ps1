@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 # TRAK Windows Installer
 # ==============================
 
-$Version = "v1.2.0"
+$Version = "v1.3.0"
 
 # Architecture detection (amd64 vs arm64)
 $Arch = "amd64"

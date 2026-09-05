@@ -1,11 +1,11 @@
 {
   "id": "lang/go",
   "template": "lang/go",
-  "template_version": "1.2.0",
+  "template_version": "1.3.0",
   "created_at": "2026-09-03T13:53:27.4520748Z",
   "author": "Trak",
   "source": "templates/lang/go.json",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "repository": "https://github.com/ndk123-web/trak-registry",
   "name": "Go (Golang) Comprehensive Mastery Track",
   "module_breakdown": {

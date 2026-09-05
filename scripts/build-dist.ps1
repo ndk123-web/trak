@@ -4,7 +4,7 @@
 # ==============================================================================
 
 param (
-    [string]$Version = "1.2.0",
+    [string]$Version = "1.3.0",
     [string]$OutputDir = "dist"
 )
 
@@ -49,7 +49,7 @@ $targets = @(
 )
 
 # Optimized build flags (strip debug symbols -s -w for compact production binaries)
-$ldflags = "-s -w -X 'github.com/ndk123-web/trak/cmd.Version=v$Version'"
+$ldflags = "-s -w -X 'github.com/ndk123-web/trak/cmd.Version=v$Version' -X 'github.com/ndk123-web/trak/internal/config.AppVersion=v$Version'"
 
 $builtFiles = @()
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
