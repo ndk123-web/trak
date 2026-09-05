@@ -249,6 +249,7 @@ func ResolveToolchain(lang string) (string, *LanguageRuntimeConfig, error) {
 		return "", nil, fmt.Errorf("no automated test runner configured for language '%s'", lang)
 	}
 
+	// take that who is in path, return example {node, config, nil}
 	for _, bin := range cfg.Executables {
 		if path, err := exec.LookPath(bin); err == nil && path != "" {
 			return bin, &cfg, nil

@@ -123,6 +123,16 @@ You can specify:
 		} else if len(args) == 1 {
 			query := strings.TrimSpace(args[0])
 
+			// if query = ./something-as , try to remove "./"
+			query = strings.TrimPrefix(query, "./")
+			query = strings.TrimPrefix(query, `.\`)
+			query = strings.TrimRight(query, `/\`)
+
+			// try to remove ending '/' or '\' command
+			query = strings.TrimRight(query, `/\`)
+
+			// fmt.Println("Query: ", query)
+
 			// 1. Direct match
 			if _, exists := trakStruct.ModuleBreakdown[query]; exists {
 				targets = append(targets, query)
