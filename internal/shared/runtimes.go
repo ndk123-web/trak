@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 type LanguageRuntimeConfig struct {
@@ -22,8 +23,11 @@ func findCFiles(moduleDir string) []string {
 
 	if _, err := os.Stat(testFile); err == nil {
 		var files []string
-		if _, err := os.Stat(exFile); err == nil {
-			files = append(files, exFile)
+		content, _ := os.ReadFile(testFile)
+		if !strings.Contains(string(content), "exercise.c") {
+			if _, err := os.Stat(exFile); err == nil {
+				files = append(files, exFile)
+			}
 		}
 		files = append(files, testFile)
 		return files
@@ -74,8 +78,11 @@ func findCppFiles(moduleDir string) []string {
 
 	if _, err := os.Stat(testFile); err == nil {
 		var files []string
-		if _, err := os.Stat(exFile); err == nil {
-			files = append(files, exFile)
+		content, _ := os.ReadFile(testFile)
+		if !strings.Contains(string(content), "exercise.cpp") {
+			if _, err := os.Stat(exFile); err == nil {
+				files = append(files, exFile)
+			}
 		}
 		files = append(files, testFile)
 		return files
