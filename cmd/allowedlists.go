@@ -47,6 +47,18 @@ var supportedRuntimesList = []SupportedRuntimeEntry{
 		Executables:  []string{"node", "bun"},
 		TestRunner:   "node --test",
 	},
+	{
+		Name:         "C",
+		TrackPattern: "lang/c",
+		Executables:  []string{"gcc", "clang"},
+		TestRunner:   "gcc / clang",
+	},
+	{
+		Name:         "C++",
+		TrackPattern: "lang/cpp",
+		Executables:  []string{"g++", "clang++"},
+		TestRunner:   "g++ / clang++",
+	},
 }
 
 func padRight(s string, width int) string {
