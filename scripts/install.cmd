@@ -7,7 +7,7 @@ echo                 TRAK Windows Installer (CMD)
 echo ========================================================
 echo.
 
-set "VERSION=v1.2.0"
+set "VERSION=v1.3.0"
 set "INSTALL_DIR=%USERPROFILE%\trak\bin"
 set "EXE_PATH=%INSTALL_DIR%\trak.exe"
 
