@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go" alt="Go Version" /></a>
   <a href="https://github.com/ndk123-web/trak-registry"><img src="https://img.shields.io/badge/Registry-19%20Tracks%20%2B%20Community-emerald?style=flat-square" alt="Registry" /></a>
-  <a href="https://github.com/ndk123-web/trak/releases/tag/v1.2.0"><img src="https://img.shields.io/badge/Release-v1.2.0-emerald?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/ndk123-web/trak/releases/tag/v1.3.0"><img src="https://img.shields.io/badge/Release-v1.3.0-emerald?style=flat-square" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
 </p>
 
@@ -76,11 +76,11 @@ flowchart TD
    {
      "id": "<username>/lang/go",
      "name": "Go (Golang) Comprehensive Mastery Track",
-     "version": "1.2.0",
+     "version": "1.3.0",
      "author": "<username>",
      "source": "users/<username>/lang/go.json",
      "repository": "https://github.com/ndk123-web/trak-registry",
-     "created_at": "2026-08-31T10:30:00Z"
+     "created_at": "2026-09-05T10:30:00Z"
    }
    ```
 
@@ -105,7 +105,7 @@ curl -fsSL https://raw.githubusercontent.com/ndk123-web/trak/main/scripts/instal
 
 ### 🐹 Go Install (Go 1.22+)
 ```bash
-go install github.com/ndk123-web/trak@v1.2.0
+go install github.com/ndk123-web/trak@v1.3.0
 ```
 
 ---
@@ -129,7 +129,52 @@ trak init lang/go --path ./my-go-lab
 trak init tool/docker -p D:/devops/docker-lab
 ```
 
-### 2. `trak list` — Interactive Catalog Explorer
+---
+
+### 2. `trak verify` — Automated Native Test Runner & Progress Engine
+Runs native compiler and test suites against your local exercise code. When all tests pass, Trak automatically marks the module complete in `trak.json` and advances your curriculum progress.
+
+```bash
+# Verify the current pending module automatically
+trak verify
+
+# Smart prefix matching (no need to type full folder name)
+trak verify 00
+trak verify 01
+trak verify 2
+
+# Keyword match
+trak verify escape
+
+# Verify all modules across the entire curriculum
+trak verify --all
+trak verify -a
+
+# List all supported language runtimes & verification commands
+trak verify --list
+trak verify allowlists
+```
+
+#### How Smart Matching Works:
+For `trak verify`, `trak done`, and `trak undo`, typing the full directory name is **not mandatory**:
+- Passing `00` or `0` will automatically match `00-setup-toolchain-and-first-program`.
+- Passing `01` or `1` will match `01-variables-and-memory`.
+- Passing keywords like `escape` will match `02-escape-analysis`.
+
+#### Supported Runtimes & Verification Harnesses:
+| Language | Toolchain | Verification Command Executed |
+| :--- | :--- | :--- |
+| **Go** | `go` | `go test -v ./...` |
+| **Rust** | `cargo` | `cargo test` |
+| **Python** | `python` / `python3` | `python -m unittest discover` |
+| **TypeScript** | `npm` / `npx` | `npm test` or `npx tsx exercise_test.ts` |
+| **JavaScript** | `node` | `node exercise_test.js` |
+| **C** | `gcc` / `clang` / `cl` | `gcc exercise_test.c -o test && ./test` |
+| **C++** | `g++` / `clang++` | `g++ -std=c++17 exercise_test.cpp -o test && ./test` |
+
+---
+
+### 3. `trak list` — Interactive Catalog Explorer
 Displays all curated tracks across 5 categories in a formatted tree:
 
 ```bash
@@ -144,7 +189,9 @@ trak list db       # Databases & Storage
 trak list tool     # DevOps & Tools
 ```
 
-### 3. `trak next` — Discover Next Pending Exercise
+---
+
+### 4. `trak next` — Discover Next Pending Exercise
 Inspects `trak.json`, resolves the next incomplete module sequentially, and gives you direct navigation links:
 
 ```bash
@@ -156,18 +203,22 @@ trak next --open
 trak next -o
 ```
 
-### 4. `trak status` — Interactive Progress & State Dashboard
+---
+
+### 5. `trak status` — Interactive Progress & State Dashboard
 Inspects the current workspace for `trak.json`, calculates module completion metrics, and renders a visual progress dashboard:
 
 ```bash
 trak status
 ```
 
-### 5. `trak done` — Mark Curriculum Module Complete
-Marks a module as completed in `trak.json`, updates your progress percentage, and guides you to the next exercise:
+---
+
+### 6. `trak done` — Mark Curriculum Module Complete
+Manually marks a module as completed in `trak.json`, updates your progress percentage, and guides you to the next exercise:
 
 ```bash
-# Smart matching by number or prefix
+# Smart matching by number prefix (full name not required)
 trak done 00
 trak done 1
 
@@ -177,25 +228,30 @@ trak complete 02
 trak mark 03
 ```
 
-### 6. `trak undo` — Reset Module Back to Pending
+---
+
+### 7. `trak undo` — Reset Module Back to Pending
 Reverts a completed module back to pending if you want to redo or revise exercises:
 
 ```bash
+# Smart matching by number prefix
 trak undo 01
 trak reset 01
 trak unmark 02
 ```
 
-### 7. `trak version` — Version & System Metadata
+---
+
+### 8. `trak version` — Version & System Metadata
 Prints detailed information about your installed binary:
 
 ```bash
 trak version
 ```
 ```text
-  ⚡ Trak CLI (v1.2.0)
+  ⚡ Trak CLI (v1.3.0)
   ──────────────────────────────────────────────
-  • Version     :  v1.2.0
+  • Version     :  v1.3.0
   • Build       :  2026.09
   • Go Runtime  :  go1.22.5
   • Platform    :  windows/amd64
@@ -210,18 +266,18 @@ Trak includes a standalone cross-compilation pipeline script ([`scripts/build-di
 
 ```powershell
 # Run from repository root
-.\scripts\build-dist.ps1 -Version "1.2.0"
+.\scripts\build-dist.ps1 -Version "1.3.0"
 ```
 
-### Generated Release Artifacts (`dist/v1.2.0/`):
-- `trak_1.2.0_windows_amd64.zip` (Windows 64-bit)
-- `trak_1.2.0_windows_arm64.zip` (Windows ARM64)
-- `trak_1.2.0_windows_386.zip` (Windows 32-bit)
-- `trak_1.2.0_darwin_arm64.tar.gz` (macOS Apple Silicon M1/M2/M3/M4)
-- `trak_1.2.0_darwin_amd64.tar.gz` (macOS Intel)
-- `trak_1.2.0_linux_amd64.tar.gz` (Linux x86_64)
-- `trak_1.2.0_linux_arm64.tar.gz` (Linux ARM64 / aarch64)
-- `trak_1.2.0_linux_386.tar.gz` (Linux 32-bit)
+### Generated Release Artifacts (`dist/v1.3.0/`):
+- `trak_1.3.0_windows_amd64.zip` (Windows 64-bit)
+- `trak_1.3.0_windows_arm64.zip` (Windows ARM64)
+- `trak_1.3.0_windows_386.zip` (Windows 32-bit)
+- `trak_1.3.0_darwin_arm64.tar.gz` (macOS Apple Silicon M1/M2/M3/M4)
+- `trak_1.3.0_darwin_amd64.tar.gz` (macOS Intel)
+- `trak_1.3.0_linux_amd64.tar.gz` (Linux x86_64)
+- `trak_1.3.0_linux_arm64.tar.gz` (Linux ARM64 / aarch64)
+- `trak_1.3.0_linux_386.tar.gz` (Linux 32-bit)
 - `checksums.txt` (SHA-256 cryptographic hashes)
 
 ---
@@ -233,13 +289,20 @@ trak-cli/
 ├── cmd/                          # Cobra CLI command definitions
 │   ├── root.go                   # Root command & interactive banner
 │   ├── init.go                   # 'trak init' command & flag handling
+│   ├── verify.go                 # 'trak verify' test harness runner
 │   ├── list.go                   # 'trak list' formatted catalog tree
+│   ├── next.go                   # 'trak next' sequential module resolver
+│   ├── status.go                 # 'trak status' visual progress dashboard
+│   ├── done.go                   # 'trak done' manual completion marker
+│   ├── undo.go                   # 'trak undo' module status resetter
+│   ├── allowedlists.go           # Supported languages runtime reference
 │   └── version.go                # 'trak version' diagnostic display
 ├── internal/
 │   ├── config/                   # Global configuration & registry endpoints
 │   ├── generator/                # Recursive filesystem materialization engine
 │   ├── helper/                   # Parser (parsestring.go) & Downloader (fetchtemplate.go)
 │   ├── models/                   # AST Node & Workspace manifest structs
+│   ├── shared/                   # Toolchain resolution & runtime test runners (runtimes.go)
 │   └── ui/                       # ANSI terminal formatters, spinners, and banners
 ├── scripts/
 │   ├── build-dist.ps1            # Multi-architecture distribution compiler
