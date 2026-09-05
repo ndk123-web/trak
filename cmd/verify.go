@@ -20,6 +20,7 @@ import (
 var (
 	verifyAll  bool
 	verifyList bool
+	detail     bool
 )
 
 var verifyCmd = cobra.Command{
@@ -234,7 +235,7 @@ You can specify:
 
 				// Print trimmed test failure output
 				outStr := strings.TrimSpace(string(output))
-				if outStr != "" {
+				if outStr != "" && detail {
 					lines := strings.Split(outStr, "\n")
 					limit := 10
 					if len(lines) < limit {
@@ -289,6 +290,7 @@ You can specify:
 }
 
 func init() {
+	verifyCmd.Flags().BoolVarP(&detail, "detail", "d", false, "In Detail Testing Results")
 	verifyCmd.Flags().BoolVarP(&verifyAll, "all", "a", false, "Verify all modules across the workspace")
 	verifyCmd.Flags().BoolVarP(&verifyList, "list", "l", false, "List all supported verification runtimes and local toolchain status")
 	rootCmd.AddCommand(&verifyCmd)
