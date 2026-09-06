@@ -10,14 +10,14 @@ type Config struct {
 	Version          string
 }
 
-var AppVersion = "v1.3.0"
+var AppVersion = "v2.0.0"
 
 var TrakConfig = &Config{
 	RawBaseUrl:       "",
 	RegistryName:     "trak-registry",
 	RepositoryBranch: "main",
 	GithubUsername:   "ndk123-web",
-	Version:          "v1.3.0",
+	Version:          "v2.0.0",
 }
 
 func UpdateBaseUrl() {
