@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go" alt="Go Version" /></a>
+  <a href="https://github.com/ndk123-web/trak/releases"><img src="https://img.shields.io/github/downloads/ndk123-web/trak/total?color=22c55e&style=flat-square" alt="Downloads" /></a>
   <a href="https://github.com/ndk123-web/trak-registry"><img src="https://img.shields.io/badge/Registry-19%20Tracks%20%2B%20Community-emerald?style=flat-square" alt="Registry" /></a>
   <a href="https://github.com/ndk123-web/trak/releases/tag/v1.3.0"><img src="https://img.shields.io/badge/Release-v1.3.0-emerald?style=flat-square" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
