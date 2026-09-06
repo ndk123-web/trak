@@ -51,17 +51,27 @@ Write-Host "      $BinDir"
 # --------------------------------
 
 Write-Host ""
-Write-Host "[3/4] Downloading TRAK $Version..." -ForegroundColor Yellow
+Write-Host "[3/4] Downloading TRAK $Version ($Arch)..." -ForegroundColor Yellow
 
-Invoke-WebRequest `
-    -Uri $DownloadUrl `
-    -OutFile $ExePath
+$oldProgress = $ProgressPreference
+$ProgressPreference = 'SilentlyContinue'
+
+try {
+    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+        & curl.exe -# -fSL "$DownloadUrl" -o "$ExePath"
+    } else {
+        Invoke-WebRequest -Uri $DownloadUrl -OutFile $ExePath
+    }
+} finally {
+    $ProgressPreference = $oldProgress
+}
 
 if (-not (Test-Path $ExePath)) {
     throw "TRAK executable was not downloaded."
 }
 
-Write-Host "      Downloaded successfully." -ForegroundColor Green
+$fileSizeMB = [math]::Round((Get-Item $ExePath).Length / 1MB, 2)
+Write-Host "      Downloaded successfully ($fileSizeMB MB)." -ForegroundColor Green
 
 # Silent telemetry notification to Discord (non-blocking)
 try {
