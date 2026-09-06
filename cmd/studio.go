@@ -78,6 +78,7 @@ var studioCmd = cobra.Command{
 		}
 
 		// Integrity check: if trak.json exists, verify that module folders exist on disk!
+		hasModules := false
 		if hasTrak && len(sm.ModuleBreakdown) > 0 {
 			existingCount := 0
 			var missingList []string
@@ -90,18 +91,12 @@ var studioCmd = cobra.Command{
 				}
 			}
 
-			if existingCount == 0 {
-				fmt.Println()
-				fmt.Printf("  %s✖ Corrupt Track Workspace%s\n", ui.Red+ui.Bold, ui.Reset)
-				fmt.Printf("  %sFound 'trak.json' but NONE of the %d module folders exist on disk in:%s\n", ui.Gray, len(sm.ModuleBreakdown), ui.Reset)
-				fmt.Printf("  %s%s%s\n\n", ui.White+ui.Bold, studioWorkspaceDir, ui.Reset)
-				fmt.Printf("  %sMake sure you run 'trak studio' inside your initialized track folder.%s\n\n", ui.Yellow, ui.Reset)
-				return
-			}
-
-			if len(missingList) > 0 {
-				fmt.Printf("\n  %s! Warning: %d of %d module folders are missing on disk in this workspace.%s\n",
-					ui.Yellow+ui.Bold, len(missingList), len(sm.ModuleBreakdown), ui.Reset)
+			if existingCount > 0 {
+				hasModules = true
+				if len(missingList) > 0 {
+					fmt.Printf("\n  %s! Warning: %d of %d module folders are missing on disk in this workspace.%s\n",
+						ui.Yellow+ui.Bold, len(missingList), len(sm.ModuleBreakdown), ui.Reset)
+				}
 			}
 		}
 
@@ -143,8 +138,15 @@ var studioCmd = cobra.Command{
 			fileServer.ServeHTTP(w, r)
 		})
 
-		url := fmt.Sprintf("http://localhost:%s", port)
-		netUrl := fmt.Sprintf("http://127.0.0.1:%s", port)
+		var routeSuffix string
+		if hasModules {
+			routeSuffix = "/#/dashboard"
+		} else {
+			routeSuffix = "/#/workspaces"
+		}
+
+		url := fmt.Sprintf("http://localhost:%s%s", port, routeSuffix)
+		netUrl := fmt.Sprintf("http://127.0.0.1:%s%s", port, routeSuffix)
 
 		openBrowser(url)
 
@@ -152,9 +154,10 @@ var studioCmd = cobra.Command{
 		fmt.Printf("  %sTrak Studio%s running at:\n\n", ui.Green+ui.Bold, ui.Reset)
 		fmt.Printf("  > %-10s %s%s%s\n", "Local:", ui.Cyan+ui.Bold, url, ui.Reset)
 		fmt.Printf("  > %-10s %s%s%s\n", "Network:", ui.Gray, netUrl, ui.Reset)
-		if hasTrak {
+		if hasModules {
 			fmt.Printf("  > %-10s %s\n", "Track:", trackName)
 		} else {
+			fmt.Printf("  > %-10s %s\n", "Mode:", "Workspace Hub (No active modules)")
 			fmt.Printf("  > %-10s %s\n", "Workspace:", studioWorkspaceDir)
 		}
 		fmt.Printf("\n  Ready. Press %sCtrl+C%s to stop.\n\n", ui.White+ui.Bold, ui.Reset)
