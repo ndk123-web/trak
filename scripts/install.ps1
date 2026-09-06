@@ -15,8 +15,8 @@ if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64" -or $env:PROCESSOR_ARCHITEW6432 -eq 
 $DownloadUrl = "https://github.com/ndk123-web/trak/releases/download/$Version/trak-windows-$Arch.exe"
 
 # Install location:
-# C:\Users\<User>\trak\bin\trak.exe
-$InstallRoot = Join-Path $env:USERPROFILE "trak"
+# C:\Users\<User>\.trak\bin\trak.exe
+$InstallRoot = Join-Path $env:USERPROFILE ".trak"
 $BinDir = Join-Path $InstallRoot "bin"
 $ExePath = Join-Path $BinDir "trak.exe"
 
