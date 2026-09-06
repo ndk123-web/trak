@@ -105,28 +105,14 @@ var studioCmd = cobra.Command{
 			}
 		}
 
-		fmt.Println()
-		fmt.Printf("  %s⚡ TRAK STUDIO%s %s— Local Workspace Dashboard%s\n\n", ui.Green+ui.Bold, ui.Reset, ui.Gray, ui.Reset)
-
-		// Step 1: Workspace context (clean, no progress clutter)
-		if hasTrak {
-			fmt.Printf("  %s✔%s %s[1/4] Workspace context:%s  %s%s%s\n",
-				ui.Green, ui.Reset, ui.Gray, ui.Reset, ui.White+ui.Bold, trackName, ui.Reset)
-		} else {
-			fmt.Printf("  %s✔%s %s[1/4] Workspace context:%s  %s%s%s %s(free workspace)%s\n",
-				ui.Green, ui.Reset, ui.Gray, ui.Reset, ui.White, studioWorkspaceDir, ui.Reset, ui.Yellow, ui.Reset)
-		}
-
-		// Step 2: Virtual UI filesystem
+		// Virtual UI filesystem
 		distFS, err := fs.Sub(studioDist, "dist")
 		if err != nil {
-			fmt.Printf("  %s✘%s %s[2/4] Failed to mount embedded UI:%s %v\n", ui.Red, ui.Reset, ui.Red, ui.Reset, err)
+			fmt.Printf("%sError:%s Failed to mount embedded studio UI: %v\n", ui.Red, ui.Reset, err)
 			return
 		}
-		fmt.Printf("  %s✔%s %s[2/4] Embedded UI mounted:%s    %sdistFS (in-memory virtual filesystem)%s\n",
-			ui.Green, ui.Reset, ui.Gray, ui.Reset, ui.LightGray, ui.Reset)
 
-		// Step 3: API & Static routing
+		// API & Static routing
 		mux := http.NewServeMux()
 
 		// Register API Handlers
@@ -156,31 +142,22 @@ var studioCmd = cobra.Command{
 			r.URL.Path = "/"
 			fileServer.ServeHTTP(w, r)
 		})
-		fmt.Printf("  %s✔%s %s[3/4] HTTP Services bound:%s     %s/ (SPA static UI)%s %s+ /api (local bridge)%s\n",
-			ui.Green, ui.Reset, ui.Gray, ui.Reset, ui.LightGray, ui.Reset, ui.Gray, ui.Reset)
 
 		url := fmt.Sprintf("http://localhost:%s", port)
 		netUrl := fmt.Sprintf("http://127.0.0.1:%s", port)
 
-		// Step 4: Browser auto-launcher
-		fmt.Printf("  %s✔%s %s[4/4] Launching browser:%s      %s%s%s\n\n",
-			ui.Green, ui.Reset, ui.Gray, ui.Reset, ui.Green+ui.Bold, url, ui.Reset)
 		openBrowser(url)
 
-		// Beautiful Brand Status Box (clean, without redundant progress)
-		fmt.Printf("  %s╭─────────────────────────────────────────────────────────────╮%s\n", ui.Green, ui.Reset)
-		fmt.Printf("  %s│%s   %sLocal Studio:%s  %s%-41s%s %s│%s\n", ui.Green, ui.Reset, ui.White+ui.Bold, ui.Reset, ui.Green+ui.Bold, url, ui.Reset, ui.Green, ui.Reset)
-		fmt.Printf("  %s│%s   %sNetwork:%s       %s%-41s%s %s│%s\n", ui.Green, ui.Reset, ui.Gray, ui.Reset, ui.LightGray, netUrl, ui.Reset, ui.Green, ui.Reset)
+		fmt.Println()
+		fmt.Printf("  %sTrak Studio%s running at:\n\n", ui.Green+ui.Bold, ui.Reset)
+		fmt.Printf("  > %-10s %s%s%s\n", "Local:", ui.Cyan+ui.Bold, url, ui.Reset)
+		fmt.Printf("  > %-10s %s%s%s\n", "Network:", ui.Gray, netUrl, ui.Reset)
 		if hasTrak {
-			dispTrack := trackName
-			if len(dispTrack) > 41 {
-				dispTrack = dispTrack[:38] + "..."
-			}
-			fmt.Printf("  %s│%s   %sActive Track:%s   %s%-41s%s %s│%s\n", ui.Green, ui.Reset, ui.Gray, ui.Reset, ui.White, dispTrack, ui.Reset, ui.Green, ui.Reset)
+			fmt.Printf("  > %-10s %s\n", "Track:", trackName)
+		} else {
+			fmt.Printf("  > %-10s %s\n", "Workspace:", studioWorkspaceDir)
 		}
-		fmt.Printf("  %s│%s                                                             %s│%s\n", ui.Green, ui.Reset, ui.Green, ui.Reset)
-		fmt.Printf("  %s│%s   %sPress %sCtrl+C%s%s to shutdown Trak Studio server             %s│%s\n", ui.Green, ui.Reset, ui.Gray, ui.White+ui.Bold, ui.Reset, ui.Gray, ui.Green, ui.Reset)
-		fmt.Printf("  %s╰─────────────────────────────────────────────────────────────╯%s\n\n", ui.Green, ui.Reset)
+		fmt.Printf("\n  Ready. Press %sCtrl+C%s to stop.\n\n", ui.White+ui.Bold, ui.Reset)
 
 		// Start HTTP Server (blocking)
 		if err := http.ListenAndServe(":"+port, mux); err != nil {
