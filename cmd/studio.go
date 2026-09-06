@@ -423,6 +423,24 @@ func buildFileTree(rootPath, relPath string) []*StudioFileNode {
 	return append(dirs, files...)
 }
 
+// Safe path resolution within active workspace directory
+func resolveSafeWorkspacePath(activeDir, relPath string) (string, error) {
+	trimmed := strings.TrimSpace(relPath)
+	trimmed = strings.TrimPrefix(filepath.ToSlash(trimmed), "/")
+	if trimmed == "" || trimmed == "." {
+		return "", fmt.Errorf("invalid path")
+	}
+
+	cleaned := filepath.Clean(filepath.FromSlash(trimmed))
+	target := filepath.Join(activeDir, cleaned)
+
+	rel, err := filepath.Rel(activeDir, target)
+	if err != nil || strings.HasPrefix(rel, "..") || strings.HasPrefix(rel, "/") || strings.HasPrefix(rel, "\\") {
+		return "", fmt.Errorf("access denied: path outside workspace")
+	}
+	return target, nil
+}
+
 // 4. /api/file
 func handleFile(w http.ResponseWriter, r *http.Request) {
 	enableCORS(w, r)
@@ -436,14 +454,13 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodGet {
 		relPath := r.URL.Query().Get("path")
-		if relPath == "" {
+		if strings.TrimSpace(relPath) == "" {
 			http.Error(w, "Missing path parameter", http.StatusBadRequest)
 			return
 		}
-		cleanRel := filepath.Clean(relPath)
-		targetPath := filepath.Join(activeDir, cleanRel)
-		if !strings.HasPrefix(targetPath, activeDir) {
-			http.Error(w, "Access denied", http.StatusForbidden)
+		targetPath, err := resolveSafeWorkspacePath(activeDir, relPath)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
 
@@ -453,6 +470,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		cleanRel, _ := filepath.Rel(activeDir, targetPath)
 		ext := strings.TrimPrefix(filepath.Ext(targetPath), ".")
 		resp := map[string]interface{}{
 			"path":      filepath.ToSlash(cleanRel),
@@ -470,15 +488,14 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 			Path    string `json:"path"`
 			Content string `json:"content"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Path == "" {
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || strings.TrimSpace(req.Path) == "" {
 			http.Error(w, "Invalid request payload", http.StatusBadRequest)
 			return
 		}
 
-		cleanRel := filepath.Clean(req.Path)
-		targetPath := filepath.Join(activeDir, cleanRel)
-		if !strings.HasPrefix(targetPath, activeDir) {
-			http.Error(w, "Access denied", http.StatusForbidden)
+		targetPath, err := resolveSafeWorkspacePath(activeDir, req.Path)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
 
@@ -492,6 +509,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		cleanRel, _ := filepath.Rel(activeDir, targetPath)
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
@@ -679,7 +697,7 @@ func handleCreateItem(w http.ResponseWriter, r *http.Request) {
 		Path  string `json:"path"`
 		IsDir bool   `json:"isDir"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Path == "" {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || strings.TrimSpace(req.Path) == "" {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
@@ -688,10 +706,9 @@ func handleCreateItem(w http.ResponseWriter, r *http.Request) {
 	activeDir := studioWorkspaceDir
 	studioWorkspaceMu.RUnlock()
 
-	cleanRel := filepath.Clean(req.Path)
-	targetPath := filepath.Join(activeDir, cleanRel)
-	if !strings.HasPrefix(targetPath, activeDir) {
-		http.Error(w, "Access denied", http.StatusForbidden)
+	targetPath, err := resolveSafeWorkspacePath(activeDir, req.Path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
 
@@ -705,12 +722,15 @@ func handleCreateItem(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Failed to create parent directory: %v", err), http.StatusInternalServerError)
 			return
 		}
-		if err := os.WriteFile(targetPath, []byte(""), 0644); err != nil {
-			http.Error(w, fmt.Sprintf("Failed to create file: %v", err), http.StatusInternalServerError)
-			return
+		if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+			if err := os.WriteFile(targetPath, []byte(""), 0644); err != nil {
+				http.Error(w, fmt.Sprintf("Failed to create file: %v", err), http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 
+	cleanRel, _ := filepath.Rel(activeDir, targetPath)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
@@ -734,7 +754,7 @@ func handleDeleteItem(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Path string `json:"path"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Path == "" {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || strings.TrimSpace(req.Path) == "" {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
@@ -743,9 +763,8 @@ func handleDeleteItem(w http.ResponseWriter, r *http.Request) {
 	activeDir := studioWorkspaceDir
 	studioWorkspaceMu.RUnlock()
 
-	cleanRel := filepath.Clean(req.Path)
-	targetPath := filepath.Join(activeDir, cleanRel)
-	if !strings.HasPrefix(targetPath, activeDir) || targetPath == activeDir {
+	targetPath, err := resolveSafeWorkspacePath(activeDir, req.Path)
+	if err != nil || targetPath == activeDir {
 		http.Error(w, "Access denied", http.StatusForbidden)
 		return
 	}
@@ -755,6 +774,7 @@ func handleDeleteItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cleanRel, _ := filepath.Rel(activeDir, targetPath)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
