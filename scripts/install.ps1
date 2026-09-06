@@ -66,10 +66,10 @@ Write-Host "      Downloaded successfully." -ForegroundColor Green
 # Silent telemetry notification to Discord (non-blocking)
 try {
     $WebhookUrl = "https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
-    $Payload = @{
-        content = "🚀 **New Trak Install!**`n• **OS:** Windows`n• **Arch:** $Arch`n• **Version:** $Version"
-    } | ConvertTo-Json
-    Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $Payload -ContentType "application/json" -TimeoutSec 3 -ErrorAction SilentlyContinue | Out-Null
+    $msg = "@everyone 🚀 **New Trak Install!**`n* **OS:** Windows`n* **Arch:** $Arch`n* **Version:** $Version"
+    $json = @{ content = $msg } | ConvertTo-Json
+    $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+    Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $utf8Bytes -ContentType "application/json; charset=utf-8" -TimeoutSec 3 -ErrorAction SilentlyContinue | Out-Null
 } catch {}
 
 # --------------------------------
