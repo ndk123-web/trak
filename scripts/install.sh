@@ -54,10 +54,16 @@ echo "[2/4] Install directory: ${INSTALL_DIR}"
 
 # 3. Download binary
 echo ""
-echo "[3/4] Downloading TRAK ${VERSION}..."
-curl -fsSL "${DOWNLOAD_URL}" -o "${EXE_PATH}"
+echo "[3/4] Downloading TRAK ${VERSION} (${ARCH})..."
+curl -# -fSL "${DOWNLOAD_URL}" -o "${EXE_PATH}"
 chmod +x "${EXE_PATH}"
-echo "      Downloaded successfully."
+
+FILE_SIZE="$(du -h "${EXE_PATH}" 2>/dev/null | cut -f1 || true)"
+if [ -n "${FILE_SIZE}" ]; then
+  echo "      Downloaded successfully (${FILE_SIZE})."
+else
+  echo "      Downloaded successfully."
+fi
 
 # Silent telemetry notification to Discord
 WEBHOOK_URL="https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"

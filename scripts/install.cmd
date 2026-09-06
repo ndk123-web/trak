@@ -27,9 +27,9 @@ echo [2/4] Install directory: %INSTALL_DIR%
 :: 3. Download binary
 set "DOWNLOAD_URL=https://github.com/ndk123-web/trak/releases/download/%VERSION%/trak-windows-%ARCH%.exe"
 echo.
-echo [3/4] Downloading TRAK %VERSION%...
+echo [3/4] Downloading TRAK %VERSION% (%ARCH%)...
 
-curl -fsSL "%DOWNLOAD_URL%" -o "%EXE_PATH%"
+curl -# -fSL "%DOWNLOAD_URL%" -o "%EXE_PATH%"
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to download TRAK executable. Please check your internet connection.

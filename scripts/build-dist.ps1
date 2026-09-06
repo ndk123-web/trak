@@ -13,6 +13,18 @@ $ErrorActionPreference = "Stop"
 $rootPath = Split-Path -Parent $PSScriptRoot
 Set-Location $rootPath
 
+function Format-FileSize([long]$Bytes) {
+    if ($Bytes -ge 1GB) {
+        return "{0:N2} GB" -f ($Bytes / 1GB)
+    } elseif ($Bytes -ge 1MB) {
+        return "{0:N2} MB" -f ($Bytes / 1MB)
+    } elseif ($Bytes -ge 1KB) {
+        return "{0:N1} KB" -f ($Bytes / 1KB)
+    } else {
+        return "$Bytes B"
+    }
+}
+
 Write-Host ""
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host "  Trak CLI - Multi-Platform Distribution Builder v$Version" -ForegroundColor Cyan
@@ -25,7 +37,7 @@ $releasePath = Join-Path $distPath "v$Version"
 $binariesPath = Join-Path $releasePath "binaries"
 
 if (Test-Path $releasePath) {
-    Write-Host "[CLEAN] Removing existing directory: $releasePath" -ForegroundColor Yellow
+    Write-Host "[CLEAN] Removing existing release directory..." -ForegroundColor Yellow
     Remove-Item -Recurse -Force $releasePath
 }
 
@@ -78,8 +90,8 @@ foreach ($target in $targets) {
     }
 
     $fileInfo = Get-Item $outputFilePath
-    $sizeMB = [math]::Round($fileInfo.Length / 1MB, 2)
-    Write-Host "OK ($sizeMB MB)" -ForegroundColor Green
+    $sizeFormatted = Format-FileSize $fileInfo.Length
+    Write-Host "OK ($sizeFormatted)" -ForegroundColor Green
 
     # Package into archive (.zip for windows, .tar.gz for unix)
     $archiveName = "trak_${Version}_${os}_${arch}"
@@ -144,8 +156,10 @@ Write-Host "Output Directory: $releasePath" -ForegroundColor White
 Write-Host ""
 
 Get-ChildItem -Path $releasePath -Filter "trak_*" | ForEach-Object {
-    $sizeKB = [math]::Round($_.Length / 1KB, 1)
-    Write-Host "  - $($_.Name) ($sizeKB KB)" -ForegroundColor Cyan
+    $sizeFormatted = Format-FileSize $_.Length
+    $namePadded = $_.Name.PadRight(35)
+    Write-Host "  - $namePadded " -NoNewline -ForegroundColor Cyan
+    Write-Host "[$sizeFormatted]" -ForegroundColor Gray
 }
 
 Write-Host "  - checksums.txt" -ForegroundColor Yellow
