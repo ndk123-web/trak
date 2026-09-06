@@ -12,7 +12,7 @@
   <a href="https://golang.org"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat-square&logo=go" alt="Go Version" /></a>
   <a href="https://github.com/ndk123-web/trak/releases"><img src="https://img.shields.io/github/downloads/ndk123-web/trak/total?color=22c55e&style=flat-square" alt="Downloads" /></a>
   <a href="https://github.com/ndk123-web/trak-registry"><img src="https://img.shields.io/badge/Registry-19%20Tracks%20%2B%20Community-emerald?style=flat-square" alt="Registry" /></a>
-  <a href="https://github.com/ndk123-web/trak/releases/tag/v1.3.0"><img src="https://img.shields.io/badge/Release-v1.3.0-emerald?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/ndk123-web/trak/releases/tag/v2.0.0"><img src="https://img.shields.io/badge/Release-v2.0.0-emerald?style=flat-square" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
 </p>
 
@@ -132,7 +132,23 @@ trak init tool/docker -p D:/devops/docker-lab
 
 ---
 
-### 2. `trak verify` — Automated Native Test Runner & Progress Engine
+### 2. `trak studio` — Local-First Visual IDE & Workspace Dashboard
+Launches an embedded web server and mounts a browser-based Single Page Application connected to your active curriculum workspace via a high-performance local HTTP bridge.
+
+Features an interactive curriculum roadmap, integrated Monaco code editor with live disk sync, native test runner with real-time pass/fail assertions, multi-workspace hub, and documentation viewer.
+
+```bash
+# Launch Studio for current workspace (or Workspace Hub if no track initialized):
+trak studio
+
+# Launch on a custom port:
+trak studio --port 8500
+trak studio -p 3000
+```
+
+---
+
+### 3. `trak verify` — Automated Native Test Runner & Progress Engine
 Runs native compiler and test suites against your local exercise code. When all tests pass, Trak automatically marks the module complete in `trak.json` and advances your curriculum progress.
 
 ```bash
@@ -175,7 +191,7 @@ For `trak verify`, `trak done`, and `trak undo`, typing the full directory name 
 
 ---
 
-### 3. `trak list` — Interactive Catalog Explorer
+### 4. `trak list` — Interactive Catalog Explorer
 Displays all curated tracks across 5 categories in a formatted tree:
 
 ```bash
@@ -192,7 +208,7 @@ trak list tool     # DevOps & Tools
 
 ---
 
-### 4. `trak next` — Discover Next Pending Exercise
+### 5. `trak next` — Discover Next Pending Exercise
 Inspects `trak.json`, resolves the next incomplete module sequentially, and gives you direct navigation links:
 
 ```bash
@@ -206,7 +222,7 @@ trak next -o
 
 ---
 
-### 5. `trak status` — Interactive Progress & State Dashboard
+### 6. `trak status` — Interactive Progress & State Dashboard
 Inspects the current workspace for `trak.json`, calculates module completion metrics, and renders a visual progress dashboard:
 
 ```bash
@@ -215,7 +231,7 @@ trak status
 
 ---
 
-### 6. `trak done` — Mark Curriculum Module Complete
+### 7. `trak done` — Mark Curriculum Module Complete
 Manually marks a module as completed in `trak.json`, updates your progress percentage, and guides you to the next exercise:
 
 ```bash
@@ -231,7 +247,7 @@ trak mark 03
 
 ---
 
-### 7. `trak undo` — Reset Module Back to Pending
+### 8. `trak undo` — Reset Module Back to Pending
 Reverts a completed module back to pending if you want to redo or revise exercises:
 
 ```bash
@@ -243,16 +259,16 @@ trak unmark 02
 
 ---
 
-### 8. `trak version` — Version & System Metadata
+### 9. `trak version` — Version & System Metadata
 Prints detailed information about your installed binary:
 
 ```bash
 trak version
 ```
 ```text
-  ⚡ Trak CLI (v1.3.0)
+  ⚡ Trak CLI (v2.0.0)
   ──────────────────────────────────────────────
-  • Version     :  v1.3.0
+  • Version     :  v2.0.0
   • Build       :  2026.09
   • Go Runtime  :  go1.22.5
   • Platform    :  windows/amd64
@@ -267,18 +283,18 @@ Trak includes a standalone cross-compilation pipeline script ([`scripts/build-di
 
 ```powershell
 # Run from repository root
-.\scripts\build-dist.ps1 -Version "1.3.0"
+.\scripts\build-dist.ps1 -Version "2.0.0"
 ```
 
-### Generated Release Artifacts (`dist/v1.3.0/`):
-- `trak_1.3.0_windows_amd64.zip` (Windows 64-bit)
-- `trak_1.3.0_windows_arm64.zip` (Windows ARM64)
-- `trak_1.3.0_windows_386.zip` (Windows 32-bit)
-- `trak_1.3.0_darwin_arm64.tar.gz` (macOS Apple Silicon M1/M2/M3/M4)
-- `trak_1.3.0_darwin_amd64.tar.gz` (macOS Intel)
-- `trak_1.3.0_linux_amd64.tar.gz` (Linux x86_64)
-- `trak_1.3.0_linux_arm64.tar.gz` (Linux ARM64 / aarch64)
-- `trak_1.3.0_linux_386.tar.gz` (Linux 32-bit)
+### Generated Release Artifacts (`dist/v2.0.0/`):
+- `trak_2.0.0_windows_amd64.zip` (Windows 64-bit)
+- `trak_2.0.0_windows_arm64.zip` (Windows ARM64)
+- `trak_2.0.0_windows_386.zip` (Windows 32-bit)
+- `trak_2.0.0_darwin_arm64.tar.gz` (macOS Apple Silicon M1/M2/M3/M4)
+- `trak_2.0.0_darwin_amd64.tar.gz` (macOS Intel)
+- `trak_2.0.0_linux_amd64.tar.gz` (Linux x86_64)
+- `trak_2.0.0_linux_arm64.tar.gz` (Linux ARM64 / aarch64)
+- `trak_2.0.0_linux_386.tar.gz` (Linux 32-bit)
 - `checksums.txt` (SHA-256 cryptographic hashes)
 
 ---
@@ -289,6 +305,7 @@ Trak includes a standalone cross-compilation pipeline script ([`scripts/build-di
 trak-cli/
 ├── cmd/                          # Cobra CLI command definitions
 │   ├── root.go                   # Root command & interactive banner
+│   ├── studio.go                 # 'trak studio' embedded Web Dashboard & bridge
 │   ├── init.go                   # 'trak init' command & flag handling
 │   ├── verify.go                 # 'trak verify' test harness runner
 │   ├── list.go                   # 'trak list' formatted catalog tree
