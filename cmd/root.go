@@ -43,6 +43,10 @@ Cloud Platforms, Databases, and DevOps Tools.`, ui.Bold, ui.Green, ui.Reset, ui.
   # Check workspace progress:
   trak status
 
+  # Launch local web studio dashboard:
+  trak studio
+  trak studio --port 8500
+
   # Check CLI version:
   trak version`,
 
@@ -56,6 +60,7 @@ Cloud Platforms, Databases, and DevOps Tools.`, ui.Bold, ui.Green, ui.Reset, ui.
 		fmt.Printf("    %slist%s       Explore all available tracks in an interactive tree\n", ui.Green, ui.Reset)
 		fmt.Printf("    %snext%s       Discover and jump to your next pending exercise\n", ui.Green, ui.Reset)
 		fmt.Printf("    %sstatus%s     Display workspace progress and module status\n", ui.Green, ui.Reset)
+		fmt.Printf("    %sstudio%s     Launch the local Trak Studio Web Dashboard\n", ui.Green, ui.Reset)
 		fmt.Printf("    %sundo%s       Reset or unmark a module back to pending\n", ui.Green, ui.Reset)
 		fmt.Printf("    %sverify%s     Run automated tests to verify exercise code\n", ui.Green, ui.Reset)
 		fmt.Printf("    %sversion%s    Display CLI version and build details\n\n", ui.Green, ui.Reset)
@@ -63,6 +68,7 @@ Cloud Platforms, Databases, and DevOps Tools.`, ui.Bold, ui.Green, ui.Reset, ui.
 		fmt.Printf("  %sQuick Start:%s\n", ui.Bold, ui.Reset)
 		fmt.Printf("    %strak list%s                   # Browse all tracks\n", ui.Green, ui.Reset)
 		fmt.Printf("    %strak init lang/go%s           # Generate Go learning workspace\n", ui.Green, ui.Reset)
+		fmt.Printf("    %strak studio%s                 # Launch local Web Studio dashboard\n", ui.Green, ui.Reset)
 		fmt.Printf("    %strak next%s                   # Find your next pending exercise\n", ui.Green, ui.Reset)
 		fmt.Printf("    %strak verify 00%s              # Run unit tests on Module 00\n", ui.Green, ui.Reset)
 		fmt.Printf("    %strak status%s                 # Check current workspace progress\n", ui.Green, ui.Reset)
