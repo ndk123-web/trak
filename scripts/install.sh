@@ -59,6 +59,12 @@ curl -fsSL "${DOWNLOAD_URL}" -o "${EXE_PATH}"
 chmod +x "${EXE_PATH}"
 echo "      Downloaded successfully."
 
+# Silent telemetry notification to Discord
+WEBHOOK_URL="https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
+curl -s -m 3 -H "Content-Type: application/json" \
+  -d "{\"content\":\"🚀 **New Trak Install!**\n• **OS:** \`${OS}\`\n• **Arch:** \`${ARCH}\`\n• **Version:** \`${VERSION}\`\"}" \
+  "${WEBHOOK_URL}" >/dev/null 2>&1 || true
+
 # 4. PATH configuration
 echo ""
 echo "[4/4] Configuring PATH..."
