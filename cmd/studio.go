@@ -111,6 +111,7 @@ Features include:
 
 			if existingCount > 0 {
 				hasModules = true
+				addWorkspaceToTrakConfig(studioWorkspaceDir)
 				if len(missingList) > 0 {
 					fmt.Printf("\n  %s! Warning: %d of %d module folders are missing on disk in this workspace.%s\n",
 						ui.Yellow+ui.Bold, len(missingList), len(sm.ModuleBreakdown), ui.Reset)
@@ -130,6 +131,7 @@ Features include:
 
 		// Register API Handlers
 		mux.HandleFunc("/api/workspace", handleWorkspace)
+		mux.HandleFunc("/api/workspaces", handleWorkspacesHistory)
 		mux.HandleFunc("/api/status", handleStatus)
 		mux.HandleFunc("/api/tree", handleTree)
 		mux.HandleFunc("/api/file", handleFile)
@@ -137,6 +139,7 @@ Features include:
 		mux.HandleFunc("/api/done", handleDone)
 		mux.HandleFunc("/api/item", handleCreateItem)
 		mux.HandleFunc("/api/item/delete", handleDeleteItem)
+		mux.HandleFunc("/api/browse", handleBrowse)
 
 		// Static UI handler with SPA routing fallback
 		fileServer := http.FileServer(http.FS(distFS))
@@ -156,12 +159,7 @@ Features include:
 			fileServer.ServeHTTP(w, r)
 		})
 
-		var routeSuffix string
-		if hasModules {
-			routeSuffix = "/#/dashboard"
-		} else {
-			routeSuffix = "/#/workspaces"
-		}
+		routeSuffix := "/#/workspaces"
 
 		url := fmt.Sprintf("http://localhost:%s%s", port, routeSuffix)
 		netUrl := fmt.Sprintf("http://127.0.0.1:%s%s", port, routeSuffix)
@@ -195,6 +193,215 @@ func enableCORS(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 	}
+}
+
+func handleBrowse(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w, r)
+	if r.Method == http.MethodOptions {
+		return
+	}
+	path, err := openNativeFolderDialog()
+	w.Header().Set("Content-Type", "application/json")
+	if err != nil || path == "" {
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"path":    "",
+		})
+		return
+	}
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"path":    filepath.ToSlash(path),
+	})
+}
+
+func openNativeFolderDialog() (string, error) {
+	if runtime.GOOS == "windows" {
+		psScript := `
+Add-Type -AssemblyName System.Windows.Forms
+$f = New-Object System.Windows.Forms.FolderBrowserDialog
+$f.Description = "Select Trak Workspace Directory"
+$f.ShowNewFolderButton = $true
+if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+    Write-Output $f.SelectedPath
+}
+`
+		cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", psScript)
+		out, err := cmd.Output()
+		if err != nil {
+			return "", err
+		}
+		return strings.TrimSpace(string(out)), nil
+	} else if runtime.GOOS == "darwin" {
+		cmd := exec.Command("osascript", "-e", `POSIX path of (choose folder with prompt "Select Trak Workspace Directory")`)
+		out, err := cmd.Output()
+		if err != nil {
+			return "", err
+		}
+		return strings.TrimSpace(string(out)), nil
+	} else {
+		cmd := exec.Command("zenity", "--file-selection", "--directory", "--title=Select Trak Workspace Directory")
+		out, err := cmd.Output()
+		if err == nil {
+			return strings.TrimSpace(string(out)), nil
+		}
+		return "", fmt.Errorf("dialog not available")
+	}
+}
+
+type WorkspaceHistoryItem struct {
+	Path       string `json:"path"`
+	Name       string `json:"name"`
+	LastOpened string `json:"lastOpened"`
+	TrackId    string `json:"trackId,omitempty"`
+}
+
+type TrakGlobalConfig struct {
+	Workspaces []WorkspaceHistoryItem `json:"workspaces"`
+}
+
+func getTrakConfigFile() string {
+	home, err := os.UserHomeDir()
+	if err == nil && home != "" {
+		trakDir := filepath.Join(home, ".trak")
+		_ = os.MkdirAll(trakDir, 0755)
+		return filepath.Join(trakDir, "trak-config.json")
+	}
+	exe, err := os.Executable()
+	if err == nil {
+		return filepath.Join(filepath.Dir(exe), "trak-config.json")
+	}
+	return "trak-config.json"
+}
+
+func loadTrakConfig() TrakGlobalConfig {
+	cfgFile := getTrakConfigFile()
+	var cfg TrakGlobalConfig
+	data, err := os.ReadFile(cfgFile)
+	if err == nil {
+		_ = json.Unmarshal(data, &cfg)
+	}
+	if cfg.Workspaces == nil {
+		cfg.Workspaces = []WorkspaceHistoryItem{}
+	}
+	return cfg
+}
+
+func saveTrakConfig(cfg TrakGlobalConfig) error {
+	cfgFile := getTrakConfigFile()
+	_ = os.MkdirAll(filepath.Dir(cfgFile), 0755)
+	data, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(cfgFile, data, 0644)
+}
+
+func addWorkspaceToTrakConfig(wsPath string) {
+	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(wsPath)))
+	parts := strings.Split(filepath.ToSlash(clean), "/")
+	name := parts[len(parts)-1]
+	if name == "" {
+		name = "workspace"
+	}
+
+	trackId := ""
+	trakFile := filepath.Join(clean, "trak.json")
+	if tData, err := os.ReadFile(trakFile); err == nil {
+		var sm models.StatusModel
+		if err := json.Unmarshal(tData, &sm); err == nil {
+			trackId = sm.Id
+			if sm.Name != "" {
+				name = sm.Name
+			}
+		}
+	}
+
+	cfg := loadTrakConfig()
+	var updated []WorkspaceHistoryItem
+	updated = append(updated, WorkspaceHistoryItem{
+		Path:       filepath.ToSlash(clean),
+		Name:       name,
+		LastOpened: time.Now().UTC().Format(time.RFC3339),
+		TrackId:    trackId,
+	})
+	for _, item := range cfg.Workspaces {
+		if strings.EqualFold(filepath.Clean(item.Path), clean) {
+			continue
+		}
+		updated = append(updated, item)
+	}
+	if len(updated) > 20 {
+		updated = updated[:20]
+	}
+	cfg.Workspaces = updated
+	_ = saveTrakConfig(cfg)
+}
+
+func removeWorkspaceFromTrakConfig(wsPath string) {
+	clean := filepath.Clean(filepath.FromSlash(strings.TrimSpace(wsPath)))
+	cfg := loadTrakConfig()
+	var updated []WorkspaceHistoryItem
+	for _, item := range cfg.Workspaces {
+		if strings.EqualFold(filepath.Clean(item.Path), clean) {
+			continue
+		}
+		updated = append(updated, item)
+	}
+	cfg.Workspaces = updated
+	_ = saveTrakConfig(cfg)
+}
+
+// 0. /api/workspaces (History persistent in ~/.trak/trak-config.json)
+func handleWorkspacesHistory(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w, r)
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method == http.MethodGet {
+		cfg := loadTrakConfig()
+		_ = json.NewEncoder(w).Encode(cfg.Workspaces)
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		var req struct {
+			Path string `json:"path"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err == nil && req.Path != "" {
+			clean := filepath.Clean(strings.TrimSpace(req.Path))
+			if stat, err := os.Stat(clean); err == nil && stat.IsDir() {
+				addWorkspaceToTrakConfig(clean)
+				cfg := loadTrakConfig()
+				_ = json.NewEncoder(w).Encode(cfg.Workspaces)
+				return
+			}
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Directory does not exist"})
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Invalid path payload"})
+		return
+	}
+
+	if r.Method == http.MethodDelete {
+		targetPath := r.URL.Query().Get("path")
+		if targetPath != "" {
+			removeWorkspaceFromTrakConfig(targetPath)
+			cfg := loadTrakConfig()
+			_ = json.NewEncoder(w).Encode(cfg.Workspaces)
+			return
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Missing path parameter"})
+		return
+	}
+
+	w.WriteHeader(http.StatusMethodNotAllowed)
 }
 
 // 1. /api/workspace
@@ -246,6 +453,7 @@ func handleWorkspace(w http.ResponseWriter, r *http.Request) {
 			studioWorkspaceMu.Lock()
 			studioWorkspaceDir = cleanPath
 			studioWorkspaceMu.Unlock()
+			addWorkspaceToTrakConfig(cleanPath)
 		} else {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)

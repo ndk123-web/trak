@@ -8,7 +8,7 @@ echo ========================================================
 echo.
 
 set "VERSION=v2.0.0"
-set "INSTALL_DIR=%USERPROFILE%\trak\bin"
+set "INSTALL_DIR=%USERPROFILE%\.trak\bin"
 set "EXE_PATH=%INSTALL_DIR%\trak.exe"
 
 :: 1. Detect architecture
