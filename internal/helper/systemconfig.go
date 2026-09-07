@@ -19,12 +19,13 @@ func getTrakSystemConfigPath() (string, error) {
 		return "", errors.New(err.Error())
 	}
 
-	dir := filepath.Join(homeDir, ".trak", "trak-config.json")
+	dir := filepath.Join(homeDir, ".trak")
 
 	if err = os.MkdirAll(dir, 0700); err != nil {
 		return "", err
 	}
 
+	dir = filepath.Join(dir, "trak-config.json")
 	return dir, nil
 }
 
@@ -48,5 +49,15 @@ func UpdateUserConfig(userConfig *models.UserConfig) (bool, error) {
 	}
 
 	_ = trakSystemConfig.SetEmail(userConfig.Email).SetPassword(userConfig.Password).SetUsername(userConfig.Username)
+
+	newDataBytes, err := json.Marshal(trakSystemConfig)
+	if err != nil {
+		return false, err
+	}
+
+	if err = os.WriteFile(systemConfigPath, newDataBytes, 0744); err != nil {
+		return false, err
+	}
+
 	return true, nil
 }

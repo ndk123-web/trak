@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ndk123-web/trak/internal/helper"
@@ -17,11 +18,19 @@ var configCmd = cobra.Command{
 	Short:   "Set Your Username, Password Or Email",
 	Args:    cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
+
+		if user.Email == "" && user.Password == "" && user.Username == "" {
+			ui.Error(fmt.Sprintf("Error: %v", errors.New("All Fields are Empty Or Invalid")))
+			return
+		}
+
 		ok, err := helper.UpdateUserConfig(&user)
 		if err != nil || !ok {
 			ui.Error(fmt.Sprintf("Error: %v", err))
 			return
 		}
+
+		ui.Success("Success!!")
 	},
 }
 
