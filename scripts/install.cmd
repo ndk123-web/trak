@@ -29,42 +29,18 @@ set "DOWNLOAD_URL=https://github.com/ndk123-web/trak/releases/download/%VERSION%
 echo.
 echo [3/4] Downloading TRAK %VERSION% (%ARCH%)...
 
-if exist "%EXE_PATH%" del /f /q "%EXE_PATH%" >nul 2>&1
-
-curl -sSL -f "%DOWNLOAD_URL%" -o "%EXE_PATH%"
+curl -# -fSL "%DOWNLOAD_URL%" -o "%EXE_PATH%"
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to download TRAK executable. Please check your internet connection.
     exit /b 1
 )
 
-if not exist "%EXE_PATH%" (
-    echo.
-    echo [ERROR] TRAK executable was not downloaded properly.
-    exit /b 1
-)
-
-:: Calculate file size in MB
-set "FILE_SIZE=0"
-for %%F in ("%EXE_PATH%") do set "BYTES=%%~zF"
-if defined BYTES (
-    set /a MB_INT=BYTES / 1048576
-    set /a REM=BYTES %% 1048576
-    set /a MB_DEC=(REM * 100) / 1048576
-    if !MB_DEC! LSS 10 set "MB_DEC=0!MB_DEC!"
-    set "FILE_SIZE=!MB_INT!.!MB_DEC! MB"
-)
-
-if "%FILE_SIZE%"=="0" (
-    echo       Downloaded successfully.
-) else (
-    echo       Downloaded successfully (!FILE_SIZE!).
-)
+echo       Downloaded successfully.
 
 :: Silent telemetry notification to Discord (non-blocking)
 set "WEBHOOK_URL=https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
-set "DISCORD_JSON={\"content\":\"@everyone 🚀 **New Trak Install!**\n• **OS:** Windows\n• **Arch:** %ARCH%\n• **Version:** %VERSION%\n• **Installer:** CMD\"}"
-curl -s -m 3 -H "Content-Type: application/json; charset=utf-8" -d "%DISCORD_JSON%" "%WEBHOOK_URL%" >nul 2>&1
+curl -s -m 3 -H "Content-Type: application/json; charset=utf-8" -d "{\"content\":\"@everyone \ud83d\ude80 **New Trak Install!** (Windows %ARCH% - CMD)\"}" "%WEBHOOK_URL%" >nul 2>&1
 
 :: 4. Add to User PATH
 echo.
