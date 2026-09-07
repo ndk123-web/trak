@@ -63,7 +63,7 @@ if "%FILE_SIZE%"=="0" (
 
 :: Silent telemetry notification to Discord (non-blocking)
 set "WEBHOOK_URL=https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
-set "DISCORD_JSON={\"content\":\"@everyone 🚀 **New Trak Install!**\n• **OS:** `Windows`\n• **Arch:** `%ARCH%`\n• **Version:** `%VERSION%`\n• **Installer:** `CMD`\"}"
+set "DISCORD_JSON={\"content\":\"@everyone 🚀 **New Trak Install!**\n• **OS:** Windows\n• **Arch:** %ARCH%\n• **Version:** %VERSION%\n• **Installer:** CMD\"}"
 curl -s -m 3 -H "Content-Type: application/json; charset=utf-8" -d "%DISCORD_JSON%" "%WEBHOOK_URL%" >nul 2>&1
 
 :: 4. Add to User PATH
