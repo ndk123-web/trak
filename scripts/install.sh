@@ -92,7 +92,7 @@ fi
 # Silent telemetry notification to Discord (non-blocking)
 WEBHOOK_URL="https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
 curl -s -m 3 -H "Content-Type: application/json; charset=utf-8" \
-  -d "{\"content\":\"@everyone 🚀 **New Trak Install!**\n• **OS:** \`${OS}\`\n• **Arch:** \`${ARCH}\`\n• **Version:** \`${VERSION}\`\n• **Installer:** \`Bash\`\"}" \
+  -d "{\"content\":\"@everyone 🚀 **New Trak Install!**\n• **OS:** ${OS}\n• **Arch:** ${ARCH}\n• **Version:** ${VERSION}\n• **Installer:** Bash\"}" \
   "${WEBHOOK_URL}" >/dev/null 2>&1 || true
 
 # 4. PATH configuration
@@ -118,6 +118,9 @@ done
 if [ "$CONFIGURED" -eq 0 ]; then
   echo "      PATH already present in shell profile."
 fi
+
+# Update current subshell PATH
+export PATH="${INSTALL_DIR}:${PATH}"
 
 echo ""
 echo -e "\033[32mTRAK installed successfully! 🚀\033[0m"

@@ -104,7 +104,7 @@ Write-Host "`r      ✔ Downloaded successfully ($fileSizeMB MB).     " -Foregro
 # Silent telemetry notification to Discord (non-blocking)
 try {
     $WebhookUrl = "https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
-    $msg = "@everyone 🚀 **New Trak Install!**`n• **OS:** `Windows``n• **Arch:** `$Arch``n• **Version:** `$Version``n• **Installer:** `PowerShell`"
+    $msg = "@everyone 🚀 **New Trak Install!**`n• **OS:** Windows`n• **Arch:** $Arch`n• **Version:** $Version`n• **Installer:** PowerShell"
     $payload = @{ content = $msg } | ConvertTo-Json -Compress
     $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
     Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $utf8Bytes -ContentType "application/json; charset=utf-8" -TimeoutSec 3 -ErrorAction SilentlyContinue | Out-Null
@@ -166,7 +166,7 @@ try {
         if (-not (Test-Path $profileDir)) {
             New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
         }
-        $profileLine = "`$env:PATH = `"$BinDir;`$env:PATH`""
+        $profileLine = '$env:PATH = "' + $BinDir + ';$env:PATH"'
         if (Test-Path $PROFILE) {
             $content = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
             if ($content -notlike "*$BinDir*") {
