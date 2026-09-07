@@ -23,6 +23,9 @@ type WorkspaceHistoryItem struct {
 
 // TrakGlobalConfig represents the persistent user configuration stored in ~/.trak/trak-config.json.
 type TrakGlobalConfig struct {
+	Username   string                 `json:"username,omitempty"`
+	Email      string                 `json:"email,omitempty"`
+	Password   string                 `json:"password,omitempty"`
 	Workspaces []WorkspaceHistoryItem `json:"workspaces"`
 }
 

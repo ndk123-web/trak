@@ -38,16 +38,23 @@ type TrakUserConfig struct {
 }
 
 func (cf *TrakUserConfig) SetEmail(email string) *TrakUserConfig {
-	cf.Email = email
+	if email != "" {
+		cf.Email = email
+	}
 	return cf
 }
 
 func (cf *TrakUserConfig) SetPassword(password string) *TrakUserConfig {
-	cf.Password = password
+	if password != "" {
+		cf.Password = password
+	}
 	return cf
 }
 
 func (cf *TrakUserConfig) SetUsername(username string) *TrakUserConfig {
-	cf.UserName = username
+	if username != "" {
+		cf.UserName = username
+	}
 	return cf
 }
+

@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"os"
@@ -38,24 +37,28 @@ func UpdateUserConfig(userConfig *models.UserConfig) (bool, error) {
 		return false, err
 	}
 
+	var trakSystemConfig models.TrakUserConfig
 	dataBytes, err := os.ReadFile(systemConfigPath)
 	if err != nil {
-		return false, err
+		if !os.IsNotExist(err) {
+			return false, err
+		}
+	} else if len(dataBytes) > 0 {
+		_ = json.Unmarshal(dataBytes, &trakSystemConfig)
 	}
 
-	var trakSystemConfig models.TrakUserConfig
-	if err = json.NewDecoder(bytes.NewReader(dataBytes)).Decode(&trakSystemConfig); err != nil {
-		return false, err
+	if trakSystemConfig.Workspaces == nil {
+		trakSystemConfig.Workspaces = []models.SystemConfigWorkspaceModel{}
 	}
 
 	_ = trakSystemConfig.SetEmail(userConfig.Email).SetPassword(userConfig.Password).SetUsername(userConfig.Username)
 
-	newDataBytes, err := json.Marshal(trakSystemConfig)
+	newDataBytes, err := json.MarshalIndent(trakSystemConfig, "", "  ")
 	if err != nil {
 		return false, err
 	}
 
-	if err = os.WriteFile(systemConfigPath, newDataBytes, 0744); err != nil {
+	if err = os.WriteFile(systemConfigPath, newDataBytes, 0644); err != nil {
 		return false, err
 	}
 
