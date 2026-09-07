@@ -12,7 +12,7 @@ import (
 type LanguageRuntimeConfig struct {
 	Name         string
 	Executables  []string // List of binary candidates to search in PATH
-	BuildCommand func(binary string, moduleDir string) (bin string, args []string)
+	BuildCommand func(binary string, moduleDir string, workspaceDir ...string) (bin string, args []string)
 }
 
 func findCFiles(moduleDir string) []string {
@@ -125,21 +125,34 @@ func findCppFiles(moduleDir string) []string {
 	return []string{filepath.Join(moduleDir, "main.cpp")}
 }
 
-func buildCCommand(binary string, moduleDir string) (string, []string) {
+func buildCCommand(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
+	wsDir := "."
+	if len(workspaceDir) > 0 && workspaceDir[0] != "" {
+		wsDir = workspaceDir[0]
+	} else if cwd, err := os.Getwd(); err == nil {
+		wsDir = cwd
+	}
+
+	fullModDir := moduleDir
+	if !filepath.IsAbs(moduleDir) {
+		fullModDir = filepath.Join(wsDir, moduleDir)
+	}
+
 	outName := "_trak_test"
 	if runtime.GOOS == "windows" {
 		outName += ".exe"
 	}
-	outExe := filepath.Join(moduleDir, outName)
+	outExe := filepath.Join(fullModDir, outName)
 
-	files := findCFiles(moduleDir)
-	compileArgs := []string{"-Wall", "-Wextra", "-std=c11", "-I" + moduleDir, "-o", outExe}
+	files := findCFiles(fullModDir)
+	compileArgs := []string{"-Wall", "-Wextra", "-std=c11", "-I" + fullModDir, "-o", outExe}
 	compileArgs = append(compileArgs, files...)
 	if runtime.GOOS != "windows" {
 		compileArgs = append(compileArgs, "-lm")
 	}
 
 	compileCmd := exec.Command(binary, compileArgs...)
+	compileCmd.Dir = wsDir
 	if _, err := compileCmd.CombinedOutput(); err != nil {
 		return binary, compileArgs
 	}
@@ -151,18 +164,31 @@ func buildCCommand(binary string, moduleDir string) (string, []string) {
 	return outExe, []string{}
 }
 
-func buildCppCommand(binary string, moduleDir string) (string, []string) {
+func buildCppCommand(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
+	wsDir := "."
+	if len(workspaceDir) > 0 && workspaceDir[0] != "" {
+		wsDir = workspaceDir[0]
+	} else if cwd, err := os.Getwd(); err == nil {
+		wsDir = cwd
+	}
+
+	fullModDir := moduleDir
+	if !filepath.IsAbs(moduleDir) {
+		fullModDir = filepath.Join(wsDir, moduleDir)
+	}
+
 	outName := "_trak_test"
 	if runtime.GOOS == "windows" {
 		outName += ".exe"
 	}
-	outExe := filepath.Join(moduleDir, outName)
+	outExe := filepath.Join(fullModDir, outName)
 
-	files := findCppFiles(moduleDir)
-	compileArgs := []string{"-Wall", "-Wextra", "-std=c++17", "-I" + moduleDir, "-o", outExe}
+	files := findCppFiles(fullModDir)
+	compileArgs := []string{"-Wall", "-Wextra", "-std=c++17", "-I" + fullModDir, "-o", outExe}
 	compileArgs = append(compileArgs, files...)
 
 	compileCmd := exec.Command(binary, compileArgs...)
+	compileCmd.Dir = wsDir
 	if _, err := compileCmd.CombinedOutput(); err != nil {
 		return binary, compileArgs
 	}
@@ -178,50 +204,54 @@ var Runtimes = map[string]LanguageRuntimeConfig{
 	"go": {
 		Name:        "Go",
 		Executables: []string{"go"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
+		BuildCommand: func(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
 			return binary, []string{"test", "-v", "./" + filepath.ToSlash(moduleDir) + "/..."}
 		},
 	},
 	"python": {
 		Name:        "Python",
 		Executables: []string{"python", "python3"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
+		BuildCommand: func(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
 			return binary, []string{"-m", "unittest", "discover", "-s", "./" + filepath.ToSlash(moduleDir), "-p", "*test*.py"}
 		},
 	},
 	"rust": {
 		Name:        "Rust",
 		Executables: []string{"cargo"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
-			manifestPath := filepath.Join(moduleDir, "Cargo.toml")
+		BuildCommand: func(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
+			wsDir := "."
+			if len(workspaceDir) > 0 && workspaceDir[0] != "" {
+				wsDir = workspaceDir[0]
+			}
+			manifestPath := filepath.Join(wsDir, moduleDir, "Cargo.toml")
 			return binary, []string{"test", "--manifest-path", manifestPath}
 		},
 	},
 	"javascript": {
 		Name:        "JavaScript",
 		Executables: []string{"node", "bun"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
+		BuildCommand: func(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
 			return binary, []string{"--test", "./" + filepath.ToSlash(moduleDir) + "/*test*.js"}
 		},
 	},
 	"typescript": {
 		Name:        "TypeScript",
 		Executables: []string{"node", "bun"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
+		BuildCommand: func(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
 			return binary, []string{"--test", "./" + filepath.ToSlash(moduleDir) + "/*test*.ts"}
 		},
 	},
 	"js": {
 		Name:        "JavaScript",
 		Executables: []string{"node", "bun"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
+		BuildCommand: func(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
 			return binary, []string{"--test", "./" + filepath.ToSlash(moduleDir) + "/*test*.js"}
 		},
 	},
 	"ts": {
 		Name:        "TypeScript",
 		Executables: []string{"node", "bun"},
-		BuildCommand: func(binary string, moduleDir string) (string, []string) {
+		BuildCommand: func(binary string, moduleDir string, workspaceDir ...string) (string, []string) {
 			return binary, []string{"--test", "./" + filepath.ToSlash(moduleDir) + "/*test*.ts"}
 		},
 	},
@@ -249,7 +279,6 @@ func ResolveToolchain(lang string) (string, *LanguageRuntimeConfig, error) {
 		return "", nil, fmt.Errorf("no automated test runner configured for language '%s'", lang)
 	}
 
-	// take that who is in path, return example {node, config, nil}
 	for _, bin := range cfg.Executables {
 		if path, err := exec.LookPath(bin); err == nil && path != "" {
 			return bin, &cfg, nil

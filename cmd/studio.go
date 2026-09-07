@@ -788,7 +788,7 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 			testOutput = fmt.Sprintf("Toolchain Error: %v\nPlease make sure %s is installed on your machine and available in PATH.", err, parsed.ToolName)
 			passed = false
 		} else {
-			bin, cmdArgs := runtimeCfg.BuildCommand(resolvedBin, req.Module)
+			bin, cmdArgs := runtimeCfg.BuildCommand(resolvedBin, req.Module, activeDir)
 			testCmd := exec.Command(bin, cmdArgs...)
 			testCmd.Dir = activeDir
 			out, testErr := testCmd.CombinedOutput()

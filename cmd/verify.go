@@ -223,7 +223,7 @@ You can specify:
 			s.Suffix = fmt.Sprintf(" Testing %s...", mod)
 			s.Start()
 
-			bin, cmdArgs := runtimeCfg.BuildCommand(resolvedBin, mod)
+			bin, cmdArgs := runtimeCfg.BuildCommand(resolvedBin, mod, cwd)
 			testCmd := exec.Command(bin, cmdArgs...)
 			testCmd.Dir = cwd
 
