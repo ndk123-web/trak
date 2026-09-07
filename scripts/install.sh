@@ -55,44 +55,20 @@ echo "[2/4] Install directory: ${INSTALL_DIR}"
 # 3. Download binary
 echo ""
 echo "[3/4] Downloading TRAK ${VERSION} (${ARCH})..."
-
-rm -f "${EXE_PATH}" 2>/dev/null || true
-
-# Download with background spinner
-curl -sSL -f "${DOWNLOAD_URL}" -o "${EXE_PATH}" &
-CURL_PID=$!
-
-SPINNERS=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
-SPIN_IDX=0
-
-while kill -0 "$CURL_PID" 2>/dev/null; do
-  FRAME="${SPINNERS[$SPIN_IDX]}"
-  SPIN_IDX=$(( (SPIN_IDX + 1) % 10 ))
-  printf "\r      \033[33m%s\033[0m Fetching binary..." "$FRAME"
-  sleep 0.09
-done
-
-wait "$CURL_PID" || true
-
-if [ ! -s "${EXE_PATH}" ]; then
-  printf "\r\033[K"
-  echo -e "\033[31m[ERROR] Failed to download TRAK executable.\033[0m"
-  exit 1
-fi
-
+curl -# -fSL "${DOWNLOAD_URL}" -o "${EXE_PATH}"
 chmod +x "${EXE_PATH}"
 
-FILE_SIZE="$(du -h "${EXE_PATH}" 2>/dev/null | cut -f1 | tr -d ' ' || true)"
+FILE_SIZE="$(du -h "${EXE_PATH}" 2>/dev/null | cut -f1 || true)"
 if [ -n "${FILE_SIZE}" ]; then
-  printf "\r      \033[32m✔ Downloaded successfully (%s).\033[0m\033[K\n" "${FILE_SIZE}"
+  echo "      Downloaded successfully (${FILE_SIZE})."
 else
-  printf "\r      \033[32m✔ Downloaded successfully.\033[0m\033[K\n"
+  echo "      Downloaded successfully."
 fi
 
-# Silent telemetry notification to Discord (non-blocking)
+# Silent telemetry notification to Discord
 WEBHOOK_URL="https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
 curl -s -m 3 -H "Content-Type: application/json; charset=utf-8" \
-  -d "{\"content\":\"@everyone 🚀 **New Trak Install!**\n• **OS:** ${OS}\n• **Arch:** ${ARCH}\n• **Version:** ${VERSION}\n• **Installer:** Bash\"}" \
+  -d "{\"content\":\"@everyone 🚀 **New Trak Install!**\n* **OS:** \`${OS}\`\n* **Arch:** \`${ARCH}\`\n* **Version:** \`${VERSION}\`\"}" \
   "${WEBHOOK_URL}" >/dev/null 2>&1 || true
 
 # 4. PATH configuration
@@ -118,9 +94,6 @@ done
 if [ "$CONFIGURED" -eq 0 ]; then
   echo "      PATH already present in shell profile."
 fi
-
-# Update current subshell PATH
-export PATH="${INSTALL_DIR}:${PATH}"
 
 echo ""
 echo -e "\033[32mTRAK installed successfully! 🚀\033[0m"
