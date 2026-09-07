@@ -56,29 +56,57 @@ Write-Host "[3/4] Downloading TRAK $Version ($Arch)..." -ForegroundColor Yellow
 $oldProgress = $ProgressPreference
 $ProgressPreference = 'SilentlyContinue'
 
+$spinners = @('⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏')
+$spinIdx = 0
+
+if (Test-Path $ExePath) {
+    Remove-Item $ExePath -Force -ErrorAction SilentlyContinue
+}
+
 try {
-    if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-        & curl.exe -# -fSL "$DownloadUrl" -o "$ExePath"
+    $hasCurl = (Get-Command curl.exe -ErrorAction SilentlyContinue) -ne $null
+
+    if ($hasCurl) {
+        $proc = Start-Process -FilePath "curl.exe" -ArgumentList "-sSL `"$DownloadUrl`" -o `"$ExePath`"" -NoNewWindow -PassThru
+        while (-not $proc.HasExited) {
+            $frame = $spinners[$spinIdx % $spinners.Length]
+            $spinIdx++
+            Write-Host -NoNewline "`r      $frame Fetching binary..."
+            Start-Sleep -Milliseconds 90
+        }
+        if ($proc.ExitCode -ne 0) {
+            throw "Failed to download TRAK binary from $DownloadUrl"
+        }
     } else {
-        Invoke-WebRequest -Uri $DownloadUrl -OutFile $ExePath
+        $webClient = New-Object System.Net.WebClient
+        $downloadTask = $webClient.DownloadFileTaskAsync($DownloadUrl, $ExePath)
+        while (-not $downloadTask.IsCompleted) {
+            $frame = $spinners[$spinIdx % $spinners.Length]
+            $spinIdx++
+            Write-Host -NoNewline "`r      $frame Fetching binary..."
+            Start-Sleep -Milliseconds 90
+        }
+        if ($downloadTask.IsFaulted) {
+            throw "Failed to download TRAK binary: $($downloadTask.Exception.Message)"
+        }
     }
 } finally {
     $ProgressPreference = $oldProgress
 }
 
-if (-not (Test-Path $ExePath)) {
-    throw "TRAK executable was not downloaded."
+if (-not (Test-Path $ExePath) -or ((Get-Item $ExePath).Length -eq 0)) {
+    throw "TRAK executable was not downloaded properly."
 }
 
 $fileSizeMB = [math]::Round((Get-Item $ExePath).Length / 1MB, 2)
-Write-Host "      Downloaded successfully ($fileSizeMB MB)." -ForegroundColor Green
+Write-Host "`r      ✔ Downloaded successfully ($fileSizeMB MB).     " -ForegroundColor Green
 
 # Silent telemetry notification to Discord (non-blocking)
 try {
     $WebhookUrl = "https://discordapp.com/api/webhooks/1546055094968262656/x0IwiTR9-lI7yY_1uUe0yH-a8HdIUKF119A8vkk5G5dRwfeGFOMbVdBB_iQ2kPRHs9-H"
-    $msg = "@everyone 🚀 **New Trak Install!**`n* **OS:** Windows`n* **Arch:** $Arch`n* **Version:** $Version"
-    $json = @{ content = $msg } | ConvertTo-Json
-    $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+    $msg = "@everyone 🚀 **New Trak Install!**`n• **OS:** `Windows``n• **Arch:** `$Arch``n• **Version:** `$Version``n• **Installer:** `PowerShell`"
+    $payload = @{ content = $msg } | ConvertTo-Json -Compress
+    $utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
     Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $utf8Bytes -ContentType "application/json; charset=utf-8" -TimeoutSec 3 -ErrorAction SilentlyContinue | Out-Null
 } catch {}
 
