@@ -6,14 +6,14 @@ import (
 
 func TestParseTemplateString(t *testing.T) {
 	tests := []struct {
-		input       string
-		wantErr     bool
-		author      string
-		category    string
-		toolName    string
-		isOfficial  bool
-		sourcePath  string
-		identifier  string
+		input      string
+		wantErr    bool
+		author     string
+		category   string
+		toolName   string
+		isOfficial bool
+		sourcePath string
+		identifier string
 	}{
 		// 1. Short Official
 		{
