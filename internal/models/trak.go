@@ -57,4 +57,3 @@ func (cf *TrakUserConfig) SetUsername(username string) *TrakUserConfig {
 	}
 	return cf
 }
-

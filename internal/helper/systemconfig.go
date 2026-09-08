@@ -5,12 +5,21 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sync"
 
 	"github.com/ndk123-web/trak/internal/models"
 )
 
 var configMutex sync.Mutex
+
+func matchEmailRegex(email string) bool {
+	pattern, err := regexp.Compile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+	if err != nil {
+		return false
+	}
+	return pattern.MatchString(email)
+}
 
 func getTrakSystemConfigPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
@@ -49,6 +58,10 @@ func UpdateUserConfig(userConfig *models.UserConfig) (bool, error) {
 
 	if trakSystemConfig.Workspaces == nil {
 		trakSystemConfig.Workspaces = []models.SystemConfigWorkspaceModel{}
+	}
+
+	if userConfig.Email != "" && !matchEmailRegex(userConfig.Email) {
+		return false, errors.New("Error: Email is Invalid")
 	}
 
 	_ = trakSystemConfig.SetEmail(userConfig.Email).SetPassword(userConfig.Password).SetUsername(userConfig.Username)

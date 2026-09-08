@@ -81,7 +81,7 @@ func GenerateDirectories(toolTemplate *models.ToolTemplateModel, targetPath stri
 	}
 
 	var moduleBreakdown map[string]bool = make(map[string]bool)
-	
+
 	for _, node := range toolTemplate.Root.Children {
 		if node.Type == "directory" {
 			moduleBreakdown[node.Name] = false
